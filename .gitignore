@@ -1,0 +1,15 @@
+.env
+
+__pycache__
+
+venv
+.venv
+
+backend/rag/vectorstore
+backend/rag/index.json
+
+frontend/node_modules
+
+.env.local
+
+
