@@ -1,3 +1,7 @@
+# Campus Assistant Frontend
+
+> **Core Philosophy**: Redesign and/or refine my product UI UX to feel like a top tier $100M ARR enterprise software product, with a premium, trustworthy, fast, and consistent experience across the entire app.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

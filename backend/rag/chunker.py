@@ -43,5 +43,5 @@ def chunk_documents(pages: list[dict], chunk_size: int = 600, chunk_overlap: int
             )
             documents.append(doc)
 
-    print(f"  → {len(documents)} chunks created from {len(pages)} pages")
+    print(f"  -> {len(documents)} chunks created from {len(pages)} pages")
     return documents

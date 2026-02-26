@@ -53,6 +53,6 @@ def parse_all_pdfs(docs_dir: str) -> list[dict]:
             print(f"  Parsing: {filename}")
             pages = parse_pdf(filepath)
             all_pages.extend(pages)
-            print(f"    → {len(pages)} pages extracted")
+            print(f"    -> {len(pages)} pages extracted")
 
     return all_pages

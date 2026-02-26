@@ -1,15 +1,33 @@
+# ========== Python ==========
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+.venv/
+env/
 .env
 
-__pycache__
-
-venv
-.venv
-
-backend/rag/vectorstore
-backend/rag/index.json
-
-frontend/node_modules
-
+# Environment Variables
+.env
 .env.local
+.env.*.local
 
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
 
+# ========== Node / Frontend ==========
+# (Frontend usually has its own .gitignore, but these are good defaults for root too)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# OS Files
+.DS_Store
+Thumbs.db

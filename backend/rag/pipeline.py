@@ -15,7 +15,7 @@ _index = None
 
 def ingest_documents(docs_dir: str) -> None:
     """
-    Full ingestion pipeline: parse all PDFs → chunk → embed → save FAISS index.
+    Full ingestion pipeline: parse all PDFs -> chunk -> embed -> save FAISS index.
 
     Args:
         docs_dir: Path to directory containing PDF files.
@@ -45,7 +45,7 @@ def ingest_documents(docs_dir: str) -> None:
     vectorstore.save_index(index)
 
     print("\n" + "=" * 50)
-    print(f"Ingestion complete! {len(pages)} pages → {len(chunks)} chunks indexed.")
+    print(f"Ingestion complete! {len(pages)} pages -> {len(chunks)} chunks indexed.")
     print("=" * 50)
 
 

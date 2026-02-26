@@ -25,7 +25,7 @@ def create_index(chunks: list[Document], embeddings) -> FAISS:
     """
     print(f"  Creating FAISS index from {len(chunks)} chunks...")
     index = FAISS.from_documents(chunks, embeddings)
-    print("  → FAISS index created")
+    print("  -> FAISS index created")
     return index
 
 
@@ -39,7 +39,7 @@ def save_index(index: FAISS, path: str = VECTORSTORE_DIR) -> None:
     """
     os.makedirs(path, exist_ok=True)
     index.save_local(path)
-    print(f"  → Index saved to {path}")
+    print(f"  -> Index saved to {path}")
 
 
 def load_index(embeddings, path: str = VECTORSTORE_DIR) -> FAISS:
@@ -62,7 +62,7 @@ def load_index(embeddings, path: str = VECTORSTORE_DIR) -> FAISS:
         )
 
     index = FAISS.load_local(path, embeddings, allow_dangerous_deserialization=True)
-    print(f"  → Index loaded from {path}")
+    print(f"  -> Index loaded from {path}")
     return index
 
 

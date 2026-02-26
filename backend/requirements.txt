@@ -11,3 +11,4 @@ python-docx
 python-dotenv
 langchain-huggingface
 langchain-community
+fastmcp
