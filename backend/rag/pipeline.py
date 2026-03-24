@@ -11,14 +11,16 @@ from . import parser, chunker, embeddings, vectorstore
 
 # Module-level index cache (loaded once, reused for all searches)
 _index = None
+_bm25 = None
 
 
-def ingest_documents(docs_dir: str) -> None:
+def ingest_documents(docs_dir: str, tags_map: dict = None) -> None:
     """
     Full ingestion pipeline: parse all PDFs -> chunk -> embed -> save FAISS index.
 
     Args:
         docs_dir: Path to directory containing PDF files.
+        tags_map: Optional dict mapping filenames to tag dicts {department, year, course}.
     """
     print("=" * 50)
     print("Starting document ingestion...")
@@ -31,9 +33,9 @@ def ingest_documents(docs_dir: str) -> None:
         print("No pages found. Make sure PDFs exist in:", docs_dir)
         return
 
-    # Step 2: Chunk
+    # Step 2: Chunk (with optional tag injection)
     print("\n[2/4] Chunking text...")
-    chunks = chunker.chunk_documents(pages)
+    chunks = chunker.chunk_documents(pages, tags_map=tags_map)
 
     # Step 3: Embed + create index
     print("\n[3/4] Embedding chunks (via HuggingFace API)...")
@@ -51,30 +53,21 @@ def ingest_documents(docs_dir: str) -> None:
 
 def load_index() -> None:
     """
-    Load the FAISS index from disk into memory.
+    Load the FAISS index and BM25 chunks from disk into memory.
     Call this once on server startup.
     """
-    global _index
+    global _index, _bm25
     embedding_model = embeddings.get_embeddings()
     _index = vectorstore.load_index(embedding_model)
+    _bm25 = vectorstore.get_bm25_retriever()
 
 
-def search_documents(query: str, top_k: int = 5) -> list[Document]:
+def search_documents(query: str, top_k: int = 5, filter: dict = None) -> list[Document]:
     """
-    Search the loaded FAISS index for relevant chunks.
-
-    Args:
-        query: User's question.
-        top_k: Number of results to return.
-
-    Returns:
-        List of LangChain Documents with page_content and metadata.
-
-    Raises:
-        RuntimeError: If index hasn't been loaded yet.
+    Search the loaded indices for relevant chunks with optional filtering.
     """
-    global _index
+    global _index, _bm25
     if _index is None:
         raise RuntimeError("Index not loaded. Call load_index() first.")
 
-    return vectorstore.search(_index, query, top_k)
+    return vectorstore.search(_index, query, top_k, filter=filter, bm25_retriever=_bm25)

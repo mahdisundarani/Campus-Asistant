@@ -1,0 +1,512 @@
+{
+  "metrics": {
+    "total_queries": 50,
+    "succeeded": 40,
+    "timed_out": 10,
+    "errored": 0,
+    "intent_accuracy": 97.5,
+    "mean_latency_ms": 5378.3
+  },
+  "detailed_results": [
+    {
+      "id": "q1",
+      "query": "Hi, who are you?",
+      "expected_intent": "general",
+      "actual_intent": "general",
+      "intent_correct": true,
+      "latency_ms": 3286,
+      "keyword_match_rate": 1.0,
+      "response_preview": "hello! i am a helpful campus assistant for greenfield university. how can i assist you today?"
+    },
+    {
+      "id": "q2",
+      "query": "What is the attendance policy?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 5648,
+      "keyword_match_rate": 0.67,
+      "response_preview": "## attendance policy\n\nall students are required to maintain a minimum of **75% attendance** in each ..."
+    },
+    {
+      "id": "q3",
+      "query": "Tell me the timetable for CS-A on Monday.",
+      "expected_intent": "timetable",
+      "actual_intent": "timetable",
+      "intent_correct": true,
+      "latency_ms": 8580,
+      "keyword_match_rate": 0.33,
+      "response_preview": "## monday timetable for cs-a\n\n| time        | course id | course name       | faculty     | room    ..."
+    },
+    {
+      "id": "q4",
+      "query": "When is the next deadline for CS401?",
+      "expected_intent": "deadline",
+      "actual_intent": "deadline",
+      "intent_correct": true,
+      "latency_ms": 6109,
+      "keyword_match_rate": 0.33,
+      "response_preview": "the next deadline for cs401 is **march 5, 2026**, for **assignment 1 - linear regression**."
+    },
+    {
+      "id": "q5",
+      "query": "Can you make a study plan for my midterms next week?",
+      "expected_intent": "planner",
+      "actual_intent": "TIMEOUT",
+      "intent_correct": false,
+      "latency_ms": 62024,
+      "keyword_match_rate": 0,
+      "response_preview": "TIMED OUT"
+    },
+    {
+      "id": "q6",
+      "query": "What are the hostel timings for girls?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 3440,
+      "keyword_match_rate": 0.67,
+      "response_preview": "i don't have this information in the uploaded documents. the provided hostel rules and regulations d..."
+    },
+    {
+      "id": "q7",
+      "query": "What do I have on Tuesday morning? I'm in MECH-B.",
+      "expected_intent": "timetable",
+      "actual_intent": "timetable",
+      "intent_correct": true,
+      "latency_ms": 6349,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents. the provided timetable only contains schedu..."
+    },
+    {
+      "id": "q8",
+      "query": "I need a study schedule. I have a lot of free time in the evenings.",
+      "expected_intent": "planner",
+      "actual_intent": "TIMEOUT",
+      "intent_correct": false,
+      "latency_ms": 62028,
+      "keyword_match_rate": 0,
+      "response_preview": "TIMED OUT"
+    },
+    {
+      "id": "q9",
+      "query": "Are there any upcoming assignments for Maths?",
+      "expected_intent": "deadline",
+      "actual_intent": "deadline",
+      "intent_correct": true,
+      "latency_ms": 7961,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q10",
+      "query": "Hello there.",
+      "expected_intent": "general",
+      "actual_intent": "general",
+      "intent_correct": true,
+      "latency_ms": 2413,
+      "keyword_match_rate": 0.5,
+      "response_preview": "hello! how can i assist you today?"
+    },
+    {
+      "id": "q11",
+      "query": "What is the procedure to apply for a campus leave?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 6849,
+      "keyword_match_rate": 1.0,
+      "response_preview": "to apply for campus leave, the procedure varies depending on the type of leave:\n\n## leave and outing..."
+    },
+    {
+      "id": "q12",
+      "query": "Show me Friday's classes for EC-A.",
+      "expected_intent": "timetable",
+      "actual_intent": "timetable",
+      "intent_correct": true,
+      "latency_ms": 6872,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q13",
+      "query": "Any deadlines tomorrow?",
+      "expected_intent": "deadline",
+      "actual_intent": "deadline",
+      "intent_correct": true,
+      "latency_ms": 6193,
+      "keyword_match_rate": 0.33,
+      "response_preview": "it looks like you have one deadline tomorrow:\n\n## deadlines for 2026-03-04\n\n*   **course:** cs404\n* ..."
+    },
+    {
+      "id": "q14",
+      "query": "How many credits are required to graduate?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 2492,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q15",
+      "query": "Can you organize my week? I want to study 2 hours a day for Physics.",
+      "expected_intent": "planner",
+      "actual_intent": "TIMEOUT",
+      "intent_correct": false,
+      "latency_ms": 62023,
+      "keyword_match_rate": 0,
+      "response_preview": "TIMED OUT"
+    },
+    {
+      "id": "q16",
+      "query": "What is the penalty for late fee payment?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 3918,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q17",
+      "query": "What time is my Database Management class on Wednesday? (Group CS-B)",
+      "expected_intent": "timetable",
+      "actual_intent": "timetable",
+      "intent_correct": true,
+      "latency_ms": 6902,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q18",
+      "query": "Are there any deadlines this week for any courses?",
+      "expected_intent": "deadline",
+      "actual_intent": "deadline",
+      "intent_correct": true,
+      "latency_ms": 11414,
+      "keyword_match_rate": 0.67,
+      "response_preview": "## deadlines this week\n\nhere are the deadlines for this week:\n\n| course id | title                  ..."
+    },
+    {
+      "id": "q19",
+      "query": "Who is the Head of the Computer Science Department?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 1552,
+      "keyword_match_rate": 0.67,
+      "response_preview": "the head of the computer science department is **prof. vikram singh**. (cs_department_handbook.pdf, ..."
+    },
+    {
+      "id": "q20",
+      "query": "I have 3 exams coming up. How should I study for them?",
+      "expected_intent": "planner",
+      "actual_intent": "TIMEOUT",
+      "intent_correct": false,
+      "latency_ms": 62017,
+      "keyword_match_rate": 0,
+      "response_preview": "TIMED OUT"
+    },
+    {
+      "id": "q21",
+      "query": "Is the library open on Sundays?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 7606,
+      "keyword_match_rate": 0.67,
+      "response_preview": "yes, the library is open on sundays from 10:00 am to 4:00 pm. (library_guide.pdf, page 2)"
+    },
+    {
+      "id": "q22",
+      "query": "What's my schedule look like for today? I'm in EE-C.",
+      "expected_intent": "timetable",
+      "actual_intent": "timetable",
+      "intent_correct": true,
+      "latency_ms": 7999,
+      "keyword_match_rate": 0.5,
+      "response_preview": "i don't have this information in the uploaded documents. the provided timetable only includes schedu..."
+    },
+    {
+      "id": "q23",
+      "query": "What is the deadline for the final year project proposal?",
+      "expected_intent": "deadline",
+      "actual_intent": "deadline",
+      "intent_correct": true,
+      "latency_ms": 7355,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q24",
+      "query": "How can I access the online student portal?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 2788,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q25",
+      "query": "Can you create a daily routine for a hosteler?",
+      "expected_intent": "planner",
+      "actual_intent": "TIMEOUT",
+      "intent_correct": false,
+      "latency_ms": 62032,
+      "keyword_match_rate": 0,
+      "response_preview": "TIMED OUT"
+    },
+    {
+      "id": "q26",
+      "query": "What are the rules regarding dress code on campus?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 3086,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q27",
+      "query": "Do we have any labs on Thursday afternoon? (Civil-A)",
+      "expected_intent": "timetable",
+      "actual_intent": "timetable",
+      "intent_correct": true,
+      "latency_ms": 6223,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i'm sorry, but i only have information for **computer science (cs)** student groups. i don't have de..."
+    },
+    {
+      "id": "q28",
+      "query": "Tell me all the upcoming due dates.",
+      "expected_intent": "deadline",
+      "actual_intent": "deadline",
+      "intent_correct": true,
+      "latency_ms": 10236,
+      "keyword_match_rate": 0.67,
+      "response_preview": "## upcoming due dates\n\nhere are all the upcoming due dates:\n\n| course id | title | due date | descri..."
+    },
+    {
+      "id": "q29",
+      "query": "What is the process for re-evaluation of exam papers?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 4200,
+      "keyword_match_rate": 0.75,
+      "response_preview": "## re-evaluation process\n\nstudents can apply for re-evaluation of their answer sheets within **10 da..."
+    },
+    {
+      "id": "q30",
+      "query": "Help me plan my study for the GRE exam.",
+      "expected_intent": "planner",
+      "actual_intent": "TIMEOUT",
+      "intent_correct": false,
+      "latency_ms": 62022,
+      "keyword_match_rate": 0,
+      "response_preview": "TIMED OUT"
+    },
+    {
+      "id": "q31",
+      "query": "Are there any scholarships available for merit students?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 3099,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q32",
+      "query": "Which classroom is the Software Engineering lecture in? (CS-A)",
+      "expected_intent": "timetable",
+      "actual_intent": "timetable",
+      "intent_correct": true,
+      "latency_ms": 6551,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q33",
+      "query": "Is the assignment 2 for OS due this Friday?",
+      "expected_intent": "deadline",
+      "actual_intent": "deadline",
+      "intent_correct": true,
+      "latency_ms": 7474,
+      "keyword_match_rate": 0.67,
+      "response_preview": "no, assignment 2 for cs405 (operating systems) is not due this friday. it is due on **march 20, 2026..."
+    },
+    {
+      "id": "q34",
+      "query": "Who do I contact for IT support issues?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 2966,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q35",
+      "query": "I need a study plan that includes time for my part-time job.",
+      "expected_intent": "planner",
+      "actual_intent": "TIMEOUT",
+      "intent_correct": false,
+      "latency_ms": 62024,
+      "keyword_match_rate": 0,
+      "response_preview": "TIMED OUT"
+    },
+    {
+      "id": "q36",
+      "query": "What are the timings for the campus cafeteria?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 2690,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q37",
+      "query": "What are the timings for the campus cafeteria on Sunday?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 2723,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q38",
+      "query": "What is the schedule for exams next week?",
+      "expected_intent": "deadline",
+      "actual_intent": "deadline",
+      "intent_correct": true,
+      "latency_ms": 7523,
+      "keyword_match_rate": 1.0,
+      "response_preview": "## exams next week\n\nhere is the schedule for exams next week:\n\n| course id | title             | due..."
+    },
+    {
+      "id": "q39",
+      "query": "How do I get a new ID card if I lost my old one?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 3162,
+      "keyword_match_rate": 0.75,
+      "response_preview": "you can get a new id card by contacting the **student affairs office**. there is a fee of **rs. 300*..."
+    },
+    {
+      "id": "q40",
+      "query": "Suggest a study plan for learning Python from scratch in 30 days.",
+      "expected_intent": "planner",
+      "actual_intent": "TIMEOUT",
+      "intent_correct": false,
+      "latency_ms": 62018,
+      "keyword_match_rate": 0,
+      "response_preview": "TIMED OUT"
+    },
+    {
+      "id": "q41",
+      "query": "Where can I find the academic calendar for this year?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 3594,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q42",
+      "query": "What time does the college bus leave from the city center?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 3930,
+      "keyword_match_rate": 0.25,
+      "response_preview": "the college bus leaves from the **city center** at the following times:\n\n*   **departure:** 7:30 am ..."
+    },
+    {
+      "id": "q43",
+      "query": "Are there any club meetings scheduled for today?",
+      "expected_intent": "timetable",
+      "actual_intent": "general",
+      "intent_correct": false,
+      "latency_ms": 2189,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q44",
+      "query": "When do we need to submit our course registrations?",
+      "expected_intent": "deadline",
+      "actual_intent": "deadline",
+      "intent_correct": true,
+      "latency_ms": 5984,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q45",
+      "query": "Can you give me a weekly workout and study plan?",
+      "expected_intent": "planner",
+      "actual_intent": "TIMEOUT",
+      "intent_correct": false,
+      "latency_ms": 62023,
+      "keyword_match_rate": 0,
+      "response_preview": "TIMED OUT"
+    },
+    {
+      "id": "q46",
+      "query": "What is the policy for using the sports facilities?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 4530,
+      "keyword_match_rate": 0.75,
+      "response_preview": "greenfield university offers comprehensive sports facilities to all students. here's a breakdown of ..."
+    },
+    {
+      "id": "q47",
+      "query": "Is there a guest lecture on ML this week?",
+      "expected_intent": "timetable",
+      "actual_intent": "timetable",
+      "intent_correct": true,
+      "latency_ms": 7064,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q48",
+      "query": "What is the last date to pay the tuition fees?",
+      "expected_intent": "deadline",
+      "actual_intent": "deadline",
+      "intent_correct": true,
+      "latency_ms": 9217,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q49",
+      "query": "Who is our chancellor?",
+      "expected_intent": "rag",
+      "actual_intent": "rag",
+      "intent_correct": true,
+      "latency_ms": 2965,
+      "keyword_match_rate": 0.0,
+      "response_preview": "i don't have this information in the uploaded documents."
+    },
+    {
+      "id": "q50",
+      "query": "I am preparing for placements, suggest a schedule.",
+      "expected_intent": "planner",
+      "actual_intent": "TIMEOUT",
+      "intent_correct": false,
+      "latency_ms": 62027,
+      "keyword_match_rate": 0,
+      "response_preview": "TIMED OUT"
+    }
+  ]
+}

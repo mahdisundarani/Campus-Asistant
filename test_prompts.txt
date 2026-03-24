@@ -1,0 +1,84 @@
+# Campus Assistant - Test Prompts for Copy/Pasting
+
+---- 1. General Conversation & Context ----
+
+Hi
+
+Who are you?
+
+What can you do?
+
+I'm a student in CS-A.
+
+What did I just tell you about my group?
+
+Thanks for your help.
+
+
+---- 2. Timetable & Follow-ups ----
+
+What classes do I have on Monday?
+
+I am in CS-A.
+
+What about Tuesday?
+
+What classes does A-section have on Friday?
+
+When is the Database Systems lab for CS-A?
+
+Show me the full schedule for Wednesday.
+
+
+---- 3. Deadlines ----
+
+What are the upcoming deadlines?
+
+When is the Machine Learning assignment due?
+
+Are there any deadlines for CS401?
+
+Show me the deadlines for Database Systems.
+
+What's the due date for the Web Tech project?
+
+
+---- 4. Document Search & Policies ----
+
+What are the rules of the hostel?
+
+What is the minimum attendance requirement?
+
+What happens if my attendance is below 75%?
+
+What are the hostel gate timings?
+
+Are visitors allowed in the hostel?
+
+Mention the dates mentioned in the academic calendar.
+
+When are the holidays according to the calendar?
+
+What is the grading system?
+
+Can I change my elective courses?
+
+
+---- 5. Mixed Intent Stress Test ----
+
+What classes does CS-A have on Monday?
+
+What is the attendance policy?
+
+What about Tuesday?
+
+Are there any deadlines for those classes?
+
+
+---- 6. Edge Cases & Errors ----
+
+What is the recipe for chocolate cake?
+
+What classes does CS-C have on Sunday?
+
+Tell me about the secret campus fight club.

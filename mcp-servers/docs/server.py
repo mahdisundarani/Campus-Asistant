@@ -12,7 +12,9 @@ Resources:
 import json
 import os
 import sys
+import logging
 from typing import Optional
+import asyncio
 
 from dotenv import load_dotenv
 
@@ -26,15 +28,24 @@ sys.path.insert(0, BACKEND_DIR)
 from fastmcp import FastMCP
 from rag import embeddings, vectorstore
 
+# Disable FastMCP's stdout logger banner
+logging.getLogger("fastmcp").setLevel(logging.CRITICAL)
+
 # ==================== CONFIG ====================
 VECTORSTORE_DIR = os.path.join(BACKEND_DIR, "vectorstore")
 DOCS_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "docs")
+
+# Redirect all standard output to standard error to prevent corrupting the MCP JSON-RPC stream
+# FastMCP will take over stdout later for its own communication, or we can just silence HuggingFace.
+import warnings
+warnings.filterwarnings("ignore")
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
 
 mcp = FastMCP("Docs Server")
 
 # Module-level index cache
 _index = None
-
 
 def _get_index():
     """Load the FAISS index (cached after first call)."""
@@ -45,9 +56,13 @@ def _get_index():
     return _index
 
 
-# ==================== TOOLS ====================
 @mcp.tool
-def search_docs(query: str, top_k: int = 5) -> list[dict]:
+async def ping() -> str:
+    """A simple ping to test if the server is responsive."""
+    return "Docs Server is alive!"
+
+@mcp.tool
+async def search_docs(query: str, top_k: int = 5) -> str:
     """
     Semantic search over uploaded campus documents using FAISS.
 
@@ -56,29 +71,30 @@ def search_docs(query: str, top_k: int = 5) -> list[dict]:
         top_k: Number of top results to return (default: 5).
 
     Returns:
-        List of matching chunks with source doc name, page, and content snippet.
+        JSON string of matching chunks with source doc name, page, and content snippet.
     """
     try:
         index = _get_index()
     except FileNotFoundError:
-        return [{"error": "FAISS index not found. Run 'python ingest.py' first."}]
+        return json.dumps([{"error": "FAISS index not found. Run 'python ingest.py' first."}])
     except Exception as e:
-        return [{"error": f"Failed to load index: {str(e)}"}]
+        return json.dumps([{"error": f"Failed to load index: {str(e)}"}])
 
-    results = vectorstore.search(index, query, top_k)
+    # Run the blocking FAISS/HuggingFace search in a separate thread so AnyIO doesn't hang
+    results = await asyncio.to_thread(vectorstore.search, index, query, top_k)
 
-    return [
+    return json.dumps([
         {
             "source": doc.metadata.get("source", "Unknown"),
             "page": doc.metadata.get("page", "?"),
             "content": doc.page_content,
         }
         for doc in results
-    ]
+    ])
 
 
 @mcp.tool
-def get_chunk(doc_name: str, page: int) -> Optional[dict]:
+async def get_chunk(doc_name: str, page: int) -> str:
     """
     Fetch a specific chunk by document name and page number.
 
@@ -87,18 +103,18 @@ def get_chunk(doc_name: str, page: int) -> Optional[dict]:
         page: Page number to retrieve.
 
     Returns:
-        The matching chunk with source, page, and content, or None if not found.
+        JSON string of the matching chunk with source, page, and content, or error if not found.
     """
     try:
         index = _get_index()
     except FileNotFoundError:
-        return {"error": "FAISS index not found. Run 'python ingest.py' first."}
+        return json.dumps({"error": "FAISS index not found. Run 'python ingest.py' first."})
     except Exception as e:
-        return {"error": f"Failed to load index: {str(e)}"}
+        return json.dumps({"error": f"Failed to load index: {str(e)}"})
 
     # Search with a broad query and filter by metadata
     # Use the doc_name as query to get relevant results from that doc
-    all_results = vectorstore.search(index, doc_name, top_k=50)
+    all_results = await asyncio.to_thread(vectorstore.search, index, doc_name, 50)
 
     for doc in all_results:
         source = doc.metadata.get("source", "")
@@ -106,13 +122,13 @@ def get_chunk(doc_name: str, page: int) -> Optional[dict]:
 
         # Match by doc name (partial match) and page
         if doc_name.lower() in source.lower() and doc_page == page:
-            return {
+            return json.dumps({
                 "source": source,
                 "page": doc_page,
                 "content": doc.page_content,
-            }
+            })
 
-    return {"message": f"No chunk found for '{doc_name}' page {page}"}
+    return json.dumps({"message": f"No chunk found for '{doc_name}' page {page}"})
 
 
 # ==================== RESOURCES ====================
@@ -142,7 +158,7 @@ def docs_catalog() -> str:
 
 
 # ==================== SELF-TEST ====================
-def _run_self_test():
+async def _run_self_test():
     """Run a quick self-test to verify the server works."""
     print("=" * 50)
     print("Docs MCP Server -- Self-Test")
@@ -156,7 +172,8 @@ def _run_self_test():
         print(f"    {d['filename']} ({d['size_kb']} KB)")
 
     print("\n[2] Testing search_docs('attendance policy'):")
-    results = search_docs("attendance policy")
+    results_json = await search_docs("attendance policy")
+    results = json.loads(results_json)
     print(f"  -> {len(results)} results")
     for r in results[:2]:
         if "error" in r:
@@ -165,7 +182,8 @@ def _run_self_test():
             print(f"    [{r['source']}, p.{r['page']}] {r['content'][:80]}...")
 
     print("\n[3] Testing search_docs('hostel rules'):")
-    results = search_docs("hostel rules")
+    results_json = await search_docs("hostel rules")
+    results = json.loads(results_json)
     print(f"  -> {len(results)} results")
     for r in results[:2]:
         if "error" in r:
@@ -181,6 +199,6 @@ def _run_self_test():
 # ==================== ENTRYPOINT ====================
 if __name__ == "__main__":
     if "--test" in sys.argv:
-        _run_self_test()
+        asyncio.run(_run_self_test())
     else:
         mcp.run()

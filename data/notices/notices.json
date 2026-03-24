@@ -1,0 +1,23 @@
+[
+    {
+        "id": "1",
+        "title": "Hackathon 2026 Registration Open",
+        "content": "The annual campus hackathon registration is now open for all departments. Prize pool of $5000!",
+        "department": "General",
+        "date": "2026-03-20"
+    },
+    {
+        "id": "2",
+        "title": "CS Semester Exams Schedule",
+        "content": "Final exams for the CS department will begin on April 15th. Check the portal for details.",
+        "department": "CS",
+        "date": "2026-03-22"
+    },
+    {
+        "id": "3",
+        "title": "Hostel Maintenance Work",
+        "content": "Block A will have no water supply from 10 AM to 4 PM on March 25th.",
+        "department": "General",
+        "date": "2026-03-23"
+    }
+]

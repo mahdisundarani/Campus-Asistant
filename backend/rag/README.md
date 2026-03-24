@@ -1,57 +1,81 @@
 # RAG Pipeline — Campus Assistant
 
-This folder (`backend/rag/`) contains the complete Retrieval-Augmented Generation pipeline.
+**Location**: `backend/rag/`
+
+Modular RAG (Retrieval-Augmented Generation) package responsible for ingesting campus documents into a FAISS vector store and retrieving relevant chunks at query time.
 
 ---
 
-## 1. Directory Structure
+## Files
 
-| File | Purpose |
+| File | Role |
 |---|---|
-| **`__init__.py`** | Exposes `rag.ingest_documents`, `rag.load_index`, and `rag.search_documents` for clean imports. |
-| **`pipeline.py`** | **Orchestrator**. Contains the main logic for ingestion and search. |
-| **`parser.py`** | Extracts text from PDF files using `pdfplumber`. |
-| **`chunker.py`** | Splits long text into smaller chunks (600 chars) with overlap. |
-| **`embeddings.py`** | Converts text to vectors using HuggingFace `all-MiniLM-L6-v2`. |
-| **`vectorstore.py`** | Manages the FAISS index (save/load/search). |
+| `__init__.py` | Exports `ingest_documents`, `load_index`, `search_documents` |
+| `pipeline.py` | Orchestrates ingest (build) and search (retrieve) flows |
+| `parser.py` | Extracts text from PDF files page-by-page via `pdfplumber`; DOCX via `python-docx` |
+| `chunker.py` | Splits extracted text into overlapping chunks (~600 chars, ~100 overlap) preserving metadata |
+| `embeddings.py` | Converts text to vectors via HuggingFace Inference API (`all-MiniLM-L6-v2`) |
+| `vectorstore.py` | Manages the FAISS index: create, save to disk, load from disk, similarity search |
 
 ---
 
-## 2. Ingestion Flow (Build)
-*Run via `python ingest.py`*
+## Ingestion Flow
 
-1.  **Parse (`parser.py`)**: Reads all PDFs in `data/docs/` and extracts text page-by-page.
-2.  **Chunk (`chunker.py`)**: Breaks pages into overlapping chunks to fit context windows.
-    *   *Metadata*: Preserves source filename + page number.
-3.  **Embed (`embeddings.py`)**: Sends chunks to HuggingFace Inference API to get vectors.
-4.  **Index (`vectorstore.py`)**: Saves vectors into a local FAISS index (`backend/vectorstore/`).
+Run once after uploading new documents, or via the Admin → Rebuild Engine button:
 
----
+```bash
+cd backend && python ingest.py
+```
 
-## 3. Retrieval Flow (Search)
-*Run via `/chat` endpoint*
-
-1.  **User Query**: "Where is the library?"
-2.  **Embed Query**: Converts query to vector (same model).
-3.  **Search (`vectorstore.py`)**: Finds top-5 most similar chunks by cosine similarity.
-4.  **Return**: Returns text chunks + metadata (Source: `Guide.pdf`, Page: 3).
+```
+data/docs/ (PDFs, DOCX)
+    │
+    ▼ parser.py       → Extract text per page
+    ▼ chunker.py      → Split into overlapping chunks
+    ▼ embeddings.py   → Embed chunks (HuggingFace API)
+    ▼ vectorstore.py  → Save FAISS index to backend/vectorstore/
+```
 
 ---
 
-## 4. Usage
+## Retrieval Flow
+
+Called by the RAG Agent via `mcp_client.search_docs()`:
+
+```
+User query
+    ▼ embeddings.py   → Embed query
+    ▼ vectorstore.py  → Top-5 similarity search
+    ▼                 → Return chunks with source + page metadata
+```
+
+---
+
+## Usage
 
 ```python
 from rag import ingest_documents, load_index, search_documents
 
-# 1. Build Index (Run once)
+# Build index (run once)
 ingest_documents("../data/docs")
 
-# 2. Load Index (On server start)
+# Load on server start
 load_index()
 
-# 3. Search (Per request)
+# Search per request
 results = search_documents("What is the attendance policy?")
 for doc in results:
-    print(f"File: {doc.metadata['source']}, Page: {doc.metadata['page']}")
+    print(f"[{doc.metadata['source']}, p.{doc.metadata['page']}]")
     print(doc.page_content)
 ```
+
+---
+
+## Chunk Metadata
+
+Each stored chunk carries:
+- `source` — original filename (e.g., `Academic_Policy_Handbook.pdf`)
+- `page` — page number within the document
+- `department`, `year`, `course` — admin-supplied tags at upload time
+
+Tags enable filtered retrieval: e.g., return only chunks tagged `CS` + `Year 2`.

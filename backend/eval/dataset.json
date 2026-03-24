@@ -1,0 +1,510 @@
+[
+    {
+        "id": "q1",
+        "query": "Hi, who are you?",
+        "expected_intent": "general",
+        "expected_keywords": [
+            "assistant",
+            "help"
+        ]
+    },
+    {
+        "id": "q2",
+        "query": "What is the attendance policy?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "75%",
+            "shortage",
+            "minimum"
+        ]
+    },
+    {
+        "id": "q3",
+        "query": "Tell me the timetable for CS-A on Monday.",
+        "expected_intent": "timetable",
+        "expected_keywords": [
+            "Data Structures",
+            "Operating Systems",
+            "Monday"
+        ]
+    },
+    {
+        "id": "q4",
+        "query": "When is the next deadline for CS401?",
+        "expected_intent": "deadline",
+        "expected_keywords": [
+            "assignment",
+            "project",
+            "due"
+        ]
+    },
+    {
+        "id": "q5",
+        "query": "Can you make a study plan for my midterms next week?",
+        "expected_intent": "planner",
+        "expected_keywords": [
+            "plan",
+            "schedule",
+            "focus",
+            "study"
+        ]
+    },
+    {
+        "id": "q6",
+        "query": "What are the hostel timings for girls?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "curfew",
+            "timing",
+            "hostel"
+        ]
+    },
+    {
+        "id": "q7",
+        "query": "What do I have on Tuesday morning? I'm in MECH-B.",
+        "expected_intent": "timetable",
+        "expected_keywords": [
+            "Tuesday",
+            "Thermodynamics",
+            "Lab"
+        ]
+    },
+    {
+        "id": "q8",
+        "query": "I need a study schedule. I have a lot of free time in the evenings.",
+        "expected_intent": "planner",
+        "expected_keywords": [
+            "evenings",
+            "breakdown",
+            "hours"
+        ]
+    },
+    {
+        "id": "q9",
+        "query": "Are there any upcoming assignments for Maths?",
+        "expected_intent": "deadline",
+        "expected_keywords": [
+            "Maths",
+            "quiz",
+            "homework"
+        ]
+    },
+    {
+        "id": "q10",
+        "query": "Hello there.",
+        "expected_intent": "general",
+        "expected_keywords": [
+            "hello",
+            "how can i help"
+        ]
+    },
+    {
+        "id": "q11",
+        "query": "What is the procedure to apply for a campus leave?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "leave",
+            "application",
+            "warden",
+            "approval"
+        ]
+    },
+    {
+        "id": "q12",
+        "query": "Show me Friday's classes for EC-A.",
+        "expected_intent": "timetable",
+        "expected_keywords": [
+            "Friday",
+            "lecture"
+        ]
+    },
+    {
+        "id": "q13",
+        "query": "Any deadlines tomorrow?",
+        "expected_intent": "deadline",
+        "expected_keywords": [
+            "tomorrow",
+            "due",
+            "submission"
+        ]
+    },
+    {
+        "id": "q14",
+        "query": "How many credits are required to graduate?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "credits",
+            "graduation",
+            "minimum"
+        ]
+    },
+    {
+        "id": "q15",
+        "query": "Can you organize my week? I want to study 2 hours a day for Physics.",
+        "expected_intent": "planner",
+        "expected_keywords": [
+            "Physics",
+            "2 hours",
+            "schedule"
+        ]
+    },
+    {
+        "id": "q16",
+        "query": "What is the penalty for late fee payment?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "penalty",
+            "late fee",
+            "fine"
+        ]
+    },
+    {
+        "id": "q17",
+        "query": "What time is my Database Management class on Wednesday? (Group CS-B)",
+        "expected_intent": "timetable",
+        "expected_keywords": [
+            "Wednesday",
+            "Database",
+            "time"
+        ]
+    },
+    {
+        "id": "q18",
+        "query": "Are there any deadlines this week for any courses?",
+        "expected_intent": "deadline",
+        "expected_keywords": [
+            "this week",
+            "upcoming",
+            "due"
+        ]
+    },
+    {
+        "id": "q19",
+        "query": "Who is the Head of the Computer Science Department?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "HOD",
+            "Computer Science",
+            "Head"
+        ]
+    },
+    {
+        "id": "q20",
+        "query": "I have 3 exams coming up. How should I study for them?",
+        "expected_intent": "planner",
+        "expected_keywords": [
+            "exams",
+            "priority",
+            "breaks"
+        ]
+    },
+    {
+        "id": "q21",
+        "query": "Is the library open on Sundays?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "library",
+            "timings",
+            "Sunday"
+        ]
+    },
+    {
+        "id": "q22",
+        "query": "What's my schedule look like for today? I'm in EE-C.",
+        "expected_intent": "timetable",
+        "expected_keywords": [
+            "today",
+            "schedule"
+        ]
+    },
+    {
+        "id": "q23",
+        "query": "What is the deadline for the final year project proposal?",
+        "expected_intent": "deadline",
+        "expected_keywords": [
+            "project",
+            "proposal",
+            "deadline"
+        ]
+    },
+    {
+        "id": "q24",
+        "query": "How can I access the online student portal?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "portal",
+            "login",
+            "credentials"
+        ]
+    },
+    {
+        "id": "q25",
+        "query": "Can you create a daily routine for a hosteler?",
+        "expected_intent": "planner",
+        "expected_keywords": [
+            "routine",
+            "hostel",
+            "daily"
+        ]
+    },
+    {
+        "id": "q26",
+        "query": "What are the rules regarding dress code on campus?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "dress code",
+            "attire",
+            "rules"
+        ]
+    },
+    {
+        "id": "q27",
+        "query": "Do we have any labs on Thursday afternoon? (Civil-A)",
+        "expected_intent": "timetable",
+        "expected_keywords": [
+            "Thursday",
+            "lab",
+            "afternoon"
+        ]
+    },
+    {
+        "id": "q28",
+        "query": "Tell me all the upcoming due dates.",
+        "expected_intent": "deadline",
+        "expected_keywords": [
+            "dates",
+            "due",
+            "list"
+        ]
+    },
+    {
+        "id": "q29",
+        "query": "What is the process for re-evaluation of exam papers?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "re-evaluation",
+            "form",
+            "fee",
+            "process"
+        ]
+    },
+    {
+        "id": "q30",
+        "query": "Help me plan my study for the GRE exam.",
+        "expected_intent": "planner",
+        "expected_keywords": [
+            "GRE",
+            "preparation",
+            "months",
+            "vocabulary"
+        ]
+    },
+    {
+        "id": "q31",
+        "query": "Are there any scholarships available for merit students?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "scholarship",
+            "merit",
+            "criteria"
+        ]
+    },
+    {
+        "id": "q32",
+        "query": "Which classroom is the Software Engineering lecture in? (CS-A)",
+        "expected_intent": "timetable",
+        "expected_keywords": [
+            "Software Engineering",
+            "room",
+            "hall"
+        ]
+    },
+    {
+        "id": "q33",
+        "query": "Is the assignment 2 for OS due this Friday?",
+        "expected_intent": "deadline",
+        "expected_keywords": [
+            "OS",
+            "assignment 2",
+            "Friday"
+        ]
+    },
+    {
+        "id": "q34",
+        "query": "Who do I contact for IT support issues?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "IT",
+            "support",
+            "helpdesk",
+            "email"
+        ]
+    },
+    {
+        "id": "q35",
+        "query": "I need a study plan that includes time for my part-time job.",
+        "expected_intent": "planner",
+        "expected_keywords": [
+            "job",
+            "balance",
+            "flexible"
+        ]
+    },
+    {
+        "id": "q36",
+        "query": "What are the timings for the campus cafeteria?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "cafeteria",
+            "mess",
+            "timing",
+            "open"
+        ]
+    },
+    {
+        "id": "q37",
+        "query": "What are the timings for the campus cafeteria on Sunday?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "cafeteria",
+            "mess",
+            "timing",
+            "open"
+        ]
+    },
+    {
+        "id": "q38",
+        "query": "What is the schedule for exams next week?",
+        "expected_intent": "deadline",
+        "expected_keywords": [
+            "exams",
+            "schedule",
+            "next week"
+        ]
+    },
+    {
+        "id": "q39",
+        "query": "How do I get a new ID card if I lost my old one?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "ID card",
+            "lost",
+            "replacement",
+            "fee"
+        ]
+    },
+    {
+        "id": "q40",
+        "query": "Suggest a study plan for learning Python from scratch in 30 days.",
+        "expected_intent": "planner",
+        "expected_keywords": [
+            "Python",
+            "30 days",
+            "basics",
+            "projects"
+        ]
+    },
+    {
+        "id": "q41",
+        "query": "Where can I find the academic calendar for this year?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "academic calendar",
+            "website",
+            "portal"
+        ]
+    },
+    {
+        "id": "q42",
+        "query": "What time does the college bus leave from the city center?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "bus",
+            "transport",
+            "schedule",
+            "route"
+        ]
+    },
+    {
+        "id": "q43",
+        "query": "Are there any club meetings scheduled for today?",
+        "expected_intent": "timetable",
+        "expected_keywords": [
+            "club",
+            "meeting",
+            "today"
+        ]
+    },
+    {
+        "id": "q44",
+        "query": "When do we need to submit our course registrations?",
+        "expected_intent": "deadline",
+        "expected_keywords": [
+            "registration",
+            "submit",
+            "deadline"
+        ]
+    },
+    {
+        "id": "q45",
+        "query": "Can you give me a weekly workout and study plan?",
+        "expected_intent": "planner",
+        "expected_keywords": [
+            "workout",
+            "study",
+            "balance",
+            "weekly"
+        ]
+    },
+    {
+        "id": "q46",
+        "query": "What is the policy for using the sports facilities?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "sports",
+            "gym",
+            "equipment",
+            "rules"
+        ]
+    },
+    {
+        "id": "q47",
+        "query": "Is there a guest lecture on ML this week?",
+        "expected_intent": "timetable",
+        "expected_keywords": [
+            "guest lecture",
+            "ML",
+            "seminar"
+        ]
+    },
+    {
+        "id": "q48",
+        "query": "What is the last date to pay the tuition fees?",
+        "expected_intent": "deadline",
+        "expected_keywords": [
+            "tuition fee",
+            "last date",
+            "payment"
+        ]
+    },
+    {
+        "id": "q49",
+        "query": "Who is our chancellor?",
+        "expected_intent": "rag",
+        "expected_keywords": [
+            "chancellor",
+            "name"
+        ]
+    },
+    {
+        "id": "q50",
+        "query": "I am preparing for placements, suggest a schedule.",
+        "expected_intent": "planner",
+        "expected_keywords": [
+            "placements",
+            "aptitude",
+            "coding",
+            "interviews"
+        ]
+    }
+]

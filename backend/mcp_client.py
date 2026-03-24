@@ -1,23 +1,9 @@
 """
 mcp_client.py — Backend wrapper for communicating with local FastMCP servers.
 
-Uses FastMCP's Client to spawn the servers as subprocesses and call their tools.
+Uses the official MCP SDK's stdio_client to spawn the servers as subprocesses
+and call their tools via the Model Context Protocol.
 """
-
-import os
-from fastmcp import Client
-
-# Define paths to the server scripts
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DOCS_SERVER_SCRIPT = os.path.join(BASE_DIR, "..", "mcp-servers", "docs", "server.py")
-TIMETABLE_SERVER_SCRIPT = os.path.join(BASE_DIR, "..", "mcp-servers", "timetable", "server.py")
-
-# Ensure we use the exact same Python executable as the backend
-# This ensures it runs inside the .venv with the fastmcp dependency
-PYTHON_EXEC = sys.executable if 'sys' in globals() else os.environ.get("VIRTUAL_ENV", "") + "/Scripts/python"
-if not os.path.exists(PYTHON_EXEC):
-    import sys
-    PYTHON_EXEC = sys.executable
 
 import os
 import sys
@@ -31,15 +17,24 @@ from mcp.client.session import ClientSession
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DOCS_SERVER_SCRIPT = os.path.join(BASE_DIR, "..", "mcp-servers", "docs", "server.py")
 TIMETABLE_SERVER_SCRIPT = os.path.join(BASE_DIR, "..", "mcp-servers", "timetable", "server.py")
+NOTICES_SERVER_SCRIPT = os.path.join(BASE_DIR, "..", "mcp-servers", "notices", "server.py")
 
 PYTHON_EXEC = sys.executable
 
 # ==================== CONNECTION MANAGERS ====================
 
+# Create a custom environment to disable FastMCP's stdout banner logging
+server_env = os.environ.copy()
+server_env["FASTMCP_LOG_LEVEL"] = "CRITICAL"
+
 @asynccontextmanager
 async def _get_docs_session() -> AsyncGenerator[ClientSession, None]:
     """Provide a session connected to the Docs MCP Server."""
-    server_params = StdioServerParameters(command=PYTHON_EXEC, args=[DOCS_SERVER_SCRIPT])
+    server_params = StdioServerParameters(
+        command=PYTHON_EXEC, 
+        args=[DOCS_SERVER_SCRIPT],
+        env=server_env
+    )
     async with stdio_client(server_params) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
@@ -48,7 +43,24 @@ async def _get_docs_session() -> AsyncGenerator[ClientSession, None]:
 @asynccontextmanager
 async def _get_timetable_session() -> AsyncGenerator[ClientSession, None]:
     """Provide a session connected to the Timetable MCP Server."""
-    server_params = StdioServerParameters(command=PYTHON_EXEC, args=[TIMETABLE_SERVER_SCRIPT])
+    server_params = StdioServerParameters(
+        command=PYTHON_EXEC, 
+        args=[TIMETABLE_SERVER_SCRIPT],
+        env=server_env
+    )
+    async with stdio_client(server_params) as (read, write):
+        async with ClientSession(read, write) as session:
+            await session.initialize()
+            yield session
+
+@asynccontextmanager
+async def _get_notices_session() -> AsyncGenerator[ClientSession, None]:
+    """Provide a session connected to the Notices MCP Server."""
+    server_params = StdioServerParameters(
+        command=PYTHON_EXEC, 
+        args=[NOTICES_SERVER_SCRIPT],
+        env=server_env
+    )
     async with stdio_client(server_params) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
@@ -90,6 +102,18 @@ async def get_deadlines(course_id: str = None) -> list[dict]:
         result = await session.call_tool("get_deadlines", arguments=args)
         return result.content[0].text if result.content else "[]"
 
+# ==================== NOTICES TOOLS ====================
+
+async def get_latest_notices(department: str = None, limit: int = 5) -> list[dict]:
+    """Call the Notices MCP server to get latest campus news."""
+    args = {"limit": limit}
+    if department:
+        args["department"] = department
+        
+    async with _get_notices_session() as session:
+        result = await session.call_tool("get_latest_notices", arguments=args)
+        return result.content[0].text if result.content else "[]"
+
 # ==================== TEST/VERIFY ====================
 
 async def _test_connections():
@@ -101,6 +125,11 @@ async def _test_connections():
         
     print("\nTesting Timetable MCP Server connection...")
     async with _get_timetable_session() as session:
+        tools = await session.list_tools()
+        print(f"  -> Connected! Found tools: {[t.name for t in tools.tools]}")
+
+    print("\nTesting Notices MCP Server connection...")
+    async with _get_notices_session() as session:
         tools = await session.list_tools()
         print(f"  -> Connected! Found tools: {[t.name for t in tools.tools]}")
 

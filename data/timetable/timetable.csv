@@ -1,40 +1,41 @@
 day,time,course_id,course_name,faculty,room,student_group
-Monday,09:00-10:00,CS401,Machine Learning,Dr. Sharma,LH-301,CS-A
-Monday,10:00-11:00,CS402,Computer Networks,Prof. Gupta,LH-302,CS-A
-Monday,11:00-12:00,CS403,Database Systems,Dr. Patel,LH-201,CS-A
-Monday,14:00-16:00,CS401L,ML Lab,Dr. Sharma,Lab-1,CS-A
-Monday,09:00-10:00,CS403,Database Systems,Dr. Patel,LH-201,CS-B
-Monday,10:00-11:00,CS401,Machine Learning,Dr. Sharma,LH-301,CS-B
-Monday,11:00-12:00,CS404,Software Engineering,Prof. Reddy,LH-303,CS-B
-Monday,14:00-16:00,CS402L,Networks Lab,Prof. Gupta,Lab-2,CS-B
-Tuesday,09:00-10:00,CS404,Software Engineering,Prof. Reddy,LH-303,CS-A
-Tuesday,10:00-11:00,CS405,Operating Systems,Dr. Kumar,LH-201,CS-A
-Tuesday,11:00-12:00,CS402,Computer Networks,Prof. Gupta,LH-302,CS-A
-Tuesday,14:00-16:00,CS403L,DBMS Lab,Dr. Patel,Lab-3,CS-A
-Tuesday,09:00-10:00,CS402,Computer Networks,Prof. Gupta,LH-302,CS-B
-Tuesday,10:00-11:00,CS404,Software Engineering,Prof. Reddy,LH-303,CS-B
-Tuesday,11:00-12:00,CS405,Operating Systems,Dr. Kumar,LH-201,CS-B
-Tuesday,14:00-16:00,CS401L,ML Lab,Dr. Sharma,Lab-1,CS-B
-Wednesday,09:00-10:00,CS401,Machine Learning,Dr. Sharma,LH-301,CS-A
-Wednesday,10:00-11:00,CS403,Database Systems,Dr. Patel,LH-201,CS-A
-Wednesday,11:00-12:00,CS405,Operating Systems,Dr. Kumar,LH-201,CS-A
-Wednesday,14:00-16:00,CS404L,SE Lab,Prof. Reddy,Lab-2,CS-A
-Wednesday,09:00-10:00,CS405,Operating Systems,Dr. Kumar,LH-201,CS-B
-Wednesday,10:00-11:00,CS401,Machine Learning,Dr. Sharma,LH-301,CS-B
-Wednesday,11:00-12:00,CS402,Computer Networks,Prof. Gupta,LH-302,CS-B
-Wednesday,14:00-16:00,CS403L,DBMS Lab,Dr. Patel,Lab-3,CS-B
-Thursday,09:00-10:00,CS405,Operating Systems,Dr. Kumar,LH-201,CS-A
-Thursday,10:00-11:00,CS404,Software Engineering,Prof. Reddy,LH-303,CS-A
-Thursday,11:00-12:00,CS401,Machine Learning,Dr. Sharma,LH-301,CS-A
-Thursday,14:00-16:00,CS405L,OS Lab,Dr. Kumar,Lab-1,CS-A
-Thursday,09:00-10:00,CS401,Machine Learning,Dr. Sharma,LH-301,CS-B
-Thursday,10:00-11:00,CS403,Database Systems,Dr. Patel,LH-201,CS-B
-Thursday,11:00-12:00,CS404,Software Engineering,Prof. Reddy,LH-303,CS-B
-Thursday,14:00-16:00,CS404L,SE Lab,Prof. Reddy,Lab-2,CS-B
-Friday,09:00-10:00,CS402,Computer Networks,Prof. Gupta,LH-302,CS-A
-Friday,10:00-11:00,CS403,Database Systems,Dr. Patel,LH-201,CS-A
-Friday,11:00-12:00,CS404,Software Engineering,Prof. Reddy,LH-303,CS-A
-Friday,09:00-10:00,CS404,Software Engineering,Prof. Reddy,LH-303,CS-B
-Friday,10:00-11:00,CS405,Operating Systems,Dr. Kumar,LH-201,CS-B
-Friday,11:00-12:00,CS401,Machine Learning,Dr. Sharma,LH-301,CS-B
-Friday,14:00-16:00,CS405L,OS Lab,Dr. Kumar,Lab-1,CS-B
+Monday,08:00-09:00,CS401,Machine Learning,Dr. Emily Carter,Room 301,CS-A
+Monday,09:00-10:00,CS402,Computer Networks,Prof. James Mitchell,Room 205,CS-A
+Monday,10:00-11:00,CS403,Database Systems,Dr. Sarah Bennett,Lab 102,CS-A
+Monday,11:00-12:00,CS404,Software Engineering,Prof. David Holloway,Room 301,CS-A
+Monday,08:00-09:00,CS401,Machine Learning,Dr. Emily Carter,Room 302,CS-B
+Monday,09:00-10:00,CS403,Database Systems,Dr. Sarah Bennett,Lab 103,CS-B
+Monday,10:00-11:00,CS402,Computer Networks,Prof. James Mitchell,Room 206,CS-B
+Monday,11:00-12:00,CS405,Operating Systems,Dr. Robert Langdon,Room 302,CS-B
+Tuesday,08:00-09:00,CS405,Operating Systems,Dr. Robert Langdon,Room 301,CS-A
+Tuesday,09:00-10:00,CS401,Machine Learning,Dr. Emily Carter,Lab 101,CS-A
+Tuesday,10:00-11:00,CS404,Software Engineering,Prof. David Holloway,Room 205,CS-A
+Tuesday,11:00-12:00,CS402,Computer Networks,Prof. James Mitchell,Room 301,CS-A
+Tuesday,08:00-09:00,CS404,Software Engineering,Prof. David Holloway,Room 302,CS-B
+Tuesday,09:00-10:00,CS405,Operating Systems,Dr. Robert Langdon,Lab 102,CS-B
+Tuesday,10:00-11:00,CS401,Machine Learning,Dr. Emily Carter,Room 206,CS-B
+Tuesday,11:00-12:00,CS403,Database Systems,Dr. Sarah Bennett,Room 302,CS-B
+Wednesday,08:00-09:00,CS403,Database Systems,Dr. Sarah Bennett,Room 301,CS-A
+Wednesday,09:00-10:00,CS405,Operating Systems,Dr. Robert Langdon,Lab 101,CS-A
+Wednesday,10:00-11:00,CS401,Machine Learning,Dr. Emily Carter,Room 301,CS-A
+Wednesday,11:00-12:00,CS404,Software Engineering,Prof. David Holloway,Room 205,CS-A
+Wednesday,08:00-09:00,CS402,Computer Networks,Prof. James Mitchell,Room 302,CS-B
+Wednesday,09:00-10:00,CS401,Machine Learning,Dr. Emily Carter,Lab 103,CS-B
+Wednesday,10:00-11:00,CS404,Software Engineering,Prof. David Holloway,Room 302,CS-B
+Wednesday,11:00-12:00,CS405,Operating Systems,Dr. Robert Langdon,Room 206,CS-B
+Thursday,08:00-09:00,CS402,Computer Networks,Prof. James Mitchell,Room 301,CS-A
+Thursday,09:00-10:00,CS404,Software Engineering,Prof. David Holloway,Room 205,CS-A
+Thursday,10:00-11:00,CS405,Operating Systems,Dr. Robert Langdon,Lab 101,CS-A
+Thursday,11:00-12:00,CS403,Database Systems,Dr. Sarah Bennett,Room 301,CS-A
+Thursday,08:00-09:00,CS403,Database Systems,Dr. Sarah Bennett,Room 302,CS-B
+Thursday,09:00-10:00,CS402,Computer Networks,Prof. James Mitchell,Room 206,CS-B
+Thursday,10:00-11:00,CS404,Software Engineering,Prof. David Holloway,Lab 102,CS-B
+Thursday,11:00-12:00,CS401,Machine Learning,Dr. Emily Carter,Room 302,CS-B
+Friday,08:00-09:00,CS401,Machine Learning,Dr. Emily Carter,Room 301,CS-A
+Friday,09:00-10:00,CS403,Database Systems,Dr. Sarah Bennett,Room 205,CS-A
+Friday,10:00-11:00,CS402,Computer Networks,Prof. James Mitchell,Lab 101,CS-A
+Friday,11:00-12:00,CS405,Operating Systems,Dr. Robert Langdon,Room 301,CS-A
+Friday,08:00-09:00,CS405,Operating Systems,Dr. Robert Langdon,Room 302,CS-B
+Friday,09:00-10:00,CS404,Software Engineering,Prof. David Holloway,Room 206,CS-B
+Friday,10:00-11:00,CS403,Database Systems,Dr. Sarah Bennett,Lab 103,CS-B
+Friday,11:00-12:00,CS402,Computer Networks,Prof. James Mitchell,Room 302,CS-B

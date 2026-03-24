@@ -8,9 +8,9 @@ import { supabase } from "@/lib/supabase";
 export default function SignupPage() {
     const router = useRouter();
 
-    // 🔹 still one field, now clearly email
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [role, setRole] = useState<"student" | "admin">("student");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
@@ -19,7 +19,7 @@ export default function SignupPage() {
         setError("");
         setSuccess("");
 
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
             email,        // ✅ explicit email
             password,
         });
@@ -29,6 +29,25 @@ export default function SignupPage() {
             return;
         }
 
+        // Wait for the user to be created in Supabase Auth, then inject the role into user_roles
+        if (data?.user?.id) {
+            try {
+                const roleResponse = await fetch("http://localhost:8000/assign-role", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_id: data.user.id, role }),
+                });
+
+                if (!roleResponse.ok) {
+                    setError("Account created, but failed to assign role. Please contact support.");
+                    return;
+                }
+            } catch {
+                setError("Network error assigning role.");
+                return;
+            }
+        }
+
         setSuccess("Account created! Redirecting to login...");
         setTimeout(() => {
             router.push("/login");
@@ -36,16 +55,23 @@ export default function SignupPage() {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-[#09090b]">
-            <div className="w-full max-w-md p-8 sm:p-10 space-y-8 bg-white dark:bg-[#0f172a] sm:rounded-2xl sm:shadow-xl sm:border border-gray-100 dark:border-gray-800 transition-all">
+        <div className="flex min-h-screen items-center justify-center bg-background relative overflow-hidden selection:bg-primary/30 selection:text-primary">
+            {/* Cyber Grid Background */}
+            <div className="absolute inset-0 bg-cyber-grid opacity-20 pointer-events-none" />
+            
+            {/* Ambient Background Glows */}
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/20 rounded-full blur-[120px] pointer-events-none" />
+
+            <div className="w-full max-w-md p-8 sm:p-10 space-y-8 glass-panel-heavy sm:rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 relative z-10 transition-all">
                 <div className="text-center">
-                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600/10 text-blue-600 mb-6">
-                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/20 text-primary mb-6 shadow-[0_0_20px_rgba(0,229,255,0.2)] border border-primary/20">
+                        <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                         </svg>
                     </div>
-                    <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Create an account</h2>
-                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Join Campus Assistant to get started</p>
+                    <h2 className="text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-primary to-secondary neon-text-cyan">Create Account</h2>
+                    <p className="mt-2 text-sm text-muted-foreground tracking-wide">Join Campus Assistant to get started.</p>
                 </div>
 
                 {error && (
@@ -60,25 +86,49 @@ export default function SignupPage() {
                 )}
 
                 <form onSubmit={handleSignup} className="space-y-5">
-                    <div className="space-y-1">
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email address</label>
+                    {/* Role Selection Toggle */}
+                    <div className="flex p-1 bg-black/40 border border-white/5 rounded-2xl">
+                        <button
+                            type="button"
+                            onClick={() => setRole("student")}
+                            className={`flex-1 py-2.5 px-4 text-sm font-bold rounded-xl transition-all duration-300 ${role === "student"
+                                ? "bg-primary/20 text-primary shadow-[0_0_10px_rgba(0,229,255,0.2)] border border-primary/30"
+                                : "text-muted-foreground hover:text-foreground"
+                                }`}
+                        >
+                            Student
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setRole("admin")}
+                            className={`flex-1 py-2.5 px-4 text-sm font-bold rounded-xl transition-all duration-300 ${role === "admin"
+                                ? "bg-primary/20 text-primary shadow-[0_0_10px_rgba(0,229,255,0.2)] border border-primary/30"
+                                : "text-muted-foreground hover:text-foreground"
+                                }`}
+                        >
+                            Administrator
+                        </button>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-foreground uppercase tracking-widest pl-1">Email Address</label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="block w-full px-4 py-3 bg-white dark:bg-[#09090b] border border-gray-200 dark:border-gray-800 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                            className="block w-full px-4 py-3.5 bg-black/50 border border-white/10 rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-300 focus:shadow-[0_0_15px_rgba(0,229,255,0.15)]"
                             placeholder="name@university.edu"
                             required
                         />
                     </div>
 
-                    <div className="space-y-1">
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-foreground uppercase tracking-widest pl-1">Password</label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="block w-full px-4 py-3 bg-white dark:bg-[#09090b] border border-gray-200 dark:border-gray-800 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                            className="block w-full px-4 py-3.5 bg-black/50 border border-white/10 rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-300 focus:shadow-[0_0_15px_rgba(0,229,255,0.15)]"
                             placeholder="••••••••"
                             required
                         />
@@ -86,15 +136,15 @@ export default function SignupPage() {
 
                     <button
                         type="submit"
-                        className="w-full py-3 px-4 flex justify-center text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-[#09090b] transition-all"
+                        className="w-full py-3.5 px-4 flex justify-center text-sm font-bold text-black bg-primary hover:bg-primary-hover rounded-xl shadow-[0_0_20px_rgba(0,229,255,0.4)] hover:shadow-[0_0_30px_rgba(0,229,255,0.6)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-background transition-all duration-300"
                     >
                         Create Account
                     </button>
                 </form>
 
-                <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-center text-sm text-muted-foreground">
                     Already have an account?{" "}
-                    <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+                    <Link href="/login" className="font-bold text-primary hover:text-primary-hover hover:neon-text-cyan transition-colors">
                         Sign in here
                     </Link>
                 </p>

@@ -14,14 +14,21 @@ import json
 import os
 import sys
 from datetime import datetime
+import logging
 from typing import Optional
 
 from fastmcp import FastMCP
 
+# Disable FastMCP's stdout logger banner
+logging.getLogger("fastmcp").setLevel(logging.CRITICAL)
+
+# Enable pandas to read our CSV files easily
+import pandas as pd
+
 # ==================== CONFIG ====================
-DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "timetable")
-TIMETABLE_CSV = os.path.join(DATA_DIR, "timetable.csv")
-DEADLINES_CSV = os.path.join(DATA_DIR, "deadlines.csv")
+TIMETABLE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "timetable")
+TIMETABLE_CSV  = os.path.join(TIMETABLE_DIR, "timetable.csv")   # shared / fallback
+DEADLINES_CSV  = os.path.join(TIMETABLE_DIR, "deadlines.csv")
 
 mcp = FastMCP("Timetable Server")
 
@@ -36,11 +43,23 @@ def _read_csv(filepath: str) -> list[dict]:
         return list(reader)
 
 
+def _group_csv_path(student_group: str) -> str:
+    """Return path for a group-specific timetable CSV (e.g. timetable_CS-A.csv)."""
+    safe_name = student_group.strip().upper().replace(" ", "-")
+    return os.path.join(TIMETABLE_DIR, f"timetable_{safe_name}.csv")
+
+
 # ==================== TOOLS ====================
 @mcp.tool
 def get_timetable(day: str, student_group: Optional[str] = None) -> list[dict]:
     """
     Get class schedule for a given day.
+
+    When student_group is provided the server first looks for a group-specific
+    file (timetable_CS-A.csv). If that exists, it returns all rows in that file
+    matching the day (no further group column filtering needed).
+    If the group-specific file does not exist it falls back to the shared
+    timetable.csv and filters by the student_group column.
 
     Args:
         day: Day of the week (e.g., 'Monday', 'Tuesday').
@@ -49,15 +68,25 @@ def get_timetable(day: str, student_group: Optional[str] = None) -> list[dict]:
     Returns:
         List of classes with time, course_id, course_name, faculty, room, student_group.
     """
+    day_lower = day.strip().lower()
+
+    if student_group:
+        group_csv = _group_csv_path(student_group)
+        if os.path.exists(group_csv):
+            # Group-specific file: filter only by day
+            rows = _read_csv(group_csv)
+            results = [r for r in rows if r.get("day", "").strip().lower() == day_lower]
+            if not results:
+                return [{"message": f"No classes found for {day} in group {student_group.upper()}"}]
+            return results
+        # Fall through to shared file with group column filter
+
     rows = _read_csv(TIMETABLE_CSV)
     if not rows:
-        return [{"error": "Timetable data not found. No CSV file available."}]
+        return [{"error": "Timetable data not found. Please ask an admin to upload a timetable."}]
 
-    # Case-insensitive day matching
-    day_lower = day.strip().lower()
     results = [r for r in rows if r.get("day", "").strip().lower() == day_lower]
 
-    # Optional group filter
     if student_group:
         group_lower = student_group.strip().lower()
         results = [
@@ -120,29 +149,39 @@ def timetable_metadata() -> str:
     Returns metadata about available timetable and deadline data:
     available days, student groups, courses, and CSV timestamps.
     """
-    timetable_rows = _read_csv(TIMETABLE_CSV)
+    # Collect all group-specific files + the shared file
+    group_files = []
+    if os.path.exists(TIMETABLE_DIR):
+        for fname in os.listdir(TIMETABLE_DIR):
+            if fname.startswith("timetable_") and fname.endswith(".csv"):
+                group_files.append(fname)
+
+    all_rows = []
+    for fname in group_files:
+        all_rows += _read_csv(os.path.join(TIMETABLE_DIR, fname))
+    # Also include shared file if no group files or it has extra data
+    shared_rows = _read_csv(TIMETABLE_CSV)
+    all_rows += shared_rows
+
     deadline_rows = _read_csv(DEADLINES_CSV)
 
-    days = sorted(set(r.get("day", "") for r in timetable_rows))
-    groups = sorted(set(r.get("student_group", "") for r in timetable_rows))
-    courses = sorted(set(r.get("course_id", "") for r in timetable_rows))
+    days = sorted(set(r.get("day", "") for r in all_rows if r.get("day")))
+    groups = sorted(set(r.get("student_group", "") for r in all_rows if r.get("student_group")))
+    # Infer groups from group-specific filenames too
+    for fname in group_files:
+        g = fname.replace("timetable_", "").replace(".csv", "")
+        if g not in groups:
+            groups.append(g)
+    groups = sorted(groups)
+    courses = sorted(set(r.get("course_id", "") for r in all_rows if r.get("course_id")))
 
     metadata = {
         "available_days": days,
         "student_groups": groups,
+        "group_files": group_files,
         "courses": courses,
-        "total_timetable_entries": len(timetable_rows),
+        "total_timetable_entries": len(all_rows),
         "total_deadlines": len(deadline_rows),
-        "timetable_csv_last_modified": (
-            datetime.fromtimestamp(os.path.getmtime(TIMETABLE_CSV)).isoformat()
-            if os.path.exists(TIMETABLE_CSV)
-            else None
-        ),
-        "deadlines_csv_last_modified": (
-            datetime.fromtimestamp(os.path.getmtime(DEADLINES_CSV)).isoformat()
-            if os.path.exists(DEADLINES_CSV)
-            else None
-        ),
     }
 
     return json.dumps(metadata, indent=2)
