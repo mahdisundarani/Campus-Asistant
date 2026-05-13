@@ -22,8 +22,7 @@ from fastmcp import FastMCP
 # Disable FastMCP's stdout logger banner
 logging.getLogger("fastmcp").setLevel(logging.CRITICAL)
 
-# Enable pandas to read our CSV files easily
-import pandas as pd
+
 
 # ==================== CONFIG ====================
 TIMETABLE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "timetable")
