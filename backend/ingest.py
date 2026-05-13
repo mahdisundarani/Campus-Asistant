@@ -27,4 +27,4 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"Warning: Could not load doc_tags.json: {e}")
 
-    ingest_documents("../data/docs", tags_map=tags_map)
+    ingest_documents("data/docs", tags_map=tags_map)

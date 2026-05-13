@@ -170,8 +170,8 @@ async def upload_file(
     course: str = Form(default=""),
     user=Depends(get_current_user),
 ):
-    os.makedirs("../data/docs", exist_ok=True)
-    path = f"../data/docs/{file.filename}"
+    os.makedirs("data/docs", exist_ok=True)
+    path = f"data/docs/{file.filename}"
 
     with open(path, "wb") as f:
         shutil.copyfileobj(file.file, f)
@@ -190,7 +190,7 @@ async def upload_file(
 # ==================== ADMIN ROUTING ====================
 @app.get("/admin/docs")
 def list_admin_docs(user=Depends(require_admin)):
-    docs_dir = "../data/docs"
+    docs_dir = "data/docs"
     if not os.path.exists(docs_dir):
         return []
     
@@ -211,7 +211,7 @@ def list_admin_docs(user=Depends(require_admin)):
 
 @app.delete("/admin/docs/{filename}")
 def delete_admin_doc(filename: str, user=Depends(require_admin)):
-    docs_dir = "../data/docs"
+    docs_dir = "data/docs"
     file_path = os.path.join(docs_dir, filename)
     
     if not os.path.abspath(file_path).startswith(os.path.abspath(docs_dir)):
@@ -232,7 +232,7 @@ def delete_admin_doc(filename: str, user=Depends(require_admin)):
 
 @app.get("/admin/docs/{filename}/view")
 def view_admin_doc(filename: str, user=Depends(require_admin)):
-    docs_dir = "../data/docs"
+    docs_dir = "data/docs"
     file_path = os.path.join(docs_dir, filename)
     
     # Simple path traversal protection
@@ -267,22 +267,22 @@ async def upload_timetable(
     group: str = Form(default=""),
     user=Depends(require_admin)
 ):
-    os.makedirs("../data/timetable", exist_ok=True)
+    os.makedirs("data/timetable", exist_ok=True)
     if group.strip():
         # Save group-specific file: timetable_CS-A.csv, timetable_CS-B.csv etc.
         safe_group = group.strip().upper().replace(" ", "-")
-        path = f"../data/timetable/timetable_{safe_group}.csv"
+        path = f"data/timetable/timetable_{safe_group}.csv"
     else:
         # Falling back to shared / global timetable
-        path = "../data/timetable/timetable.csv"
+        path = "data/timetable/timetable.csv"
     with open(path, "wb") as f:
         shutil.copyfileobj(file.file, f)
     return {"message": f"Timetable uploaded successfully", "path": path}
 
 @app.post("/upload-deadlines")
 async def upload_deadlines(file: UploadFile = File(...), user=Depends(require_admin)):
-    os.makedirs("../data/timetable", exist_ok=True)
-    path = f"../data/timetable/deadlines.csv"
+    os.makedirs("data/timetable", exist_ok=True)
+    path = f"data/timetable/deadlines.csv"
     with open(path, "wb") as f:
         shutil.copyfileobj(file.file, f)
     return {"message": "Deadlines uploaded successfully"}
@@ -290,7 +290,7 @@ async def upload_deadlines(file: UploadFile = File(...), user=Depends(require_ad
 @app.get("/admin/deadlines")
 def get_admin_deadlines(user=Depends(require_admin)):
     """Read deadlines.csv and return rows as a list of dicts."""
-    path = "../data/timetable/deadlines.csv"
+    path = "data/timetable/deadlines.csv"
     if not os.path.exists(path):
         return {"exists": False, "rows": [], "headers": []}
     try:
@@ -310,7 +310,7 @@ def get_admin_deadlines(user=Depends(require_admin)):
 @app.delete("/admin/deadlines")
 def delete_admin_deadlines(user=Depends(require_admin)):
     """Delete the uploaded deadlines.csv file."""
-    path = "../data/timetable/deadlines.csv"
+    path = "data/timetable/deadlines.csv"
     if not os.path.exists(path):
         raise HTTPException(status_code=404, detail="No deadlines file found")
     try:
@@ -321,7 +321,7 @@ def delete_admin_deadlines(user=Depends(require_admin)):
 
 @app.get("/admin/notices")
 def get_admin_notices(user=Depends(require_admin)):
-    path = "../data/notices/notices.json"
+    path = "data/notices/notices.json"
     if not os.path.exists(path):
         return []
     with open(path, "r") as f:
@@ -330,7 +330,7 @@ def get_admin_notices(user=Depends(require_admin)):
 @app.get("/admin/timetable")
 def get_admin_timetable(user=Depends(require_admin)):
     """List all uploaded timetable files with their row counts."""
-    timetable_dir = "../data/timetable"
+    timetable_dir = "data/timetable"
     if not os.path.exists(timetable_dir):
         return []
     import csv as _csv
@@ -364,7 +364,7 @@ def get_admin_timetable(user=Depends(require_admin)):
 @app.delete("/admin/timetable/{filename}")
 def delete_admin_timetable(filename: str, user=Depends(require_admin)):
     """Delete a specific timetable file by filename (e.g. timetable_CS-A.csv)."""
-    timetable_dir = os.path.abspath("../data/timetable")
+    timetable_dir = os.path.abspath("data/timetable")
     file_path = os.path.join(timetable_dir, filename)
     if not file_path.startswith(timetable_dir):
         raise HTTPException(status_code=400, detail="Invalid filename")
@@ -381,7 +381,7 @@ def delete_admin_timetable(filename: str, user=Depends(require_admin)):
 @app.delete("/admin/notices/{notice_index}")
 def delete_admin_notice(notice_index: int, user=Depends(require_admin)):
     """Delete a single notice by its index in the notices.json array."""
-    path = "../data/notices/notices.json"
+    path = "data/notices/notices.json"
     if not os.path.exists(path):
         raise HTTPException(status_code=404, detail="notices.json not found")
     try:
@@ -400,8 +400,8 @@ def delete_admin_notice(notice_index: int, user=Depends(require_admin)):
 
 @app.post("/upload-notices")
 async def upload_notices(file: UploadFile = File(...), user=Depends(require_admin)):
-    os.makedirs("../data/notices", exist_ok=True)
-    path = "../data/notices/notices.json"
+    os.makedirs("data/notices", exist_ok=True)
+    path = "data/notices/notices.json"
     with open(path, "wb") as f:
         shutil.copyfileobj(file.file, f)
     return {"message": "Notices updated successfully"}
@@ -411,7 +411,7 @@ def rebuild_index(user=Depends(require_admin)):
     try:
         # Read saved tags and pass to ingestion
         tags_map = _load_tags()
-        ingest_documents("../data/docs", tags_map=tags_map)
+        ingest_documents("data/docs", tags_map=tags_map)
         # Reload the index into memory
         load_index()
         return {"message": "Search index rebuilt successfully!"}

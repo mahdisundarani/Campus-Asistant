@@ -5,7 +5,7 @@ Usage:
     from rag import ingest_documents, load_index, search_documents
 
     # Ingest (run once):
-    ingest_documents("../data/docs")
+    ingest_documents("data/docs")
 
     # On server startup:
     load_index()

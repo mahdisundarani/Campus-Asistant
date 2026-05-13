@@ -15,9 +15,9 @@ from mcp.client.session import ClientSession
 
 # Define paths to the server scripts
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DOCS_SERVER_SCRIPT = os.path.join(BASE_DIR, "..", "mcp-servers", "docs", "server.py")
-TIMETABLE_SERVER_SCRIPT = os.path.join(BASE_DIR, "..", "mcp-servers", "timetable", "server.py")
-NOTICES_SERVER_SCRIPT = os.path.join(BASE_DIR, "..", "mcp-servers", "notices", "server.py")
+DOCS_SERVER_SCRIPT = os.path.join(BASE_DIR, "mcp-servers", "docs", "server.py")
+TIMETABLE_SERVER_SCRIPT = os.path.join(BASE_DIR, "mcp-servers", "timetable", "server.py")
+NOTICES_SERVER_SCRIPT = os.path.join(BASE_DIR, "mcp-servers", "notices", "server.py")
 
 PYTHON_EXEC = sys.executable
 
