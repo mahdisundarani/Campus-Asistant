@@ -5,6 +5,8 @@ python-jose[cryptography]
 passlib[bcrypt]
 langchain
 langchain-google-genai
+langchain-openai
+openai
 faiss-cpu
 pdfplumber
 python-docx
@@ -12,7 +14,8 @@ python-dotenv
 langchain-huggingface
 langchain-community
 fastmcp
+mcp
 langgraph
 rank_bm25
 flashrank
-supabase
+supabase
