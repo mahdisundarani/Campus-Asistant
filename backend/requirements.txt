@@ -5,7 +5,9 @@ python-jose[cryptography]
 passlib[bcrypt]
 langchain
 langchain-google-genai
-faiss-cpu
+langchain-openai
+qdrant-client
+langchain-qdrant
 pdfplumber
 python-docx
 python-dotenv

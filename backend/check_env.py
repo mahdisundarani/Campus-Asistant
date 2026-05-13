@@ -146,24 +146,32 @@ def check_huggingface(api_key):
         print(f"  {FAIL} Error: {e}")
 
 
-def check_faiss_index():
+def check_qdrant_collection():
     print(f"\n{'='*50}")
-    print("5. FAISS Vector Store")
+    print("5. Qdrant Vector Store")
     print(f"{'='*50}")
-    index_path = os.path.join(os.path.dirname(__file__), "vectorstore", "index.faiss")
-    pkl_path = os.path.join(os.path.dirname(__file__), "vectorstore", "index.pkl")
+    qdrant_url = os.getenv("QDRANT_URL")
+    qdrant_key = os.getenv("QDRANT_API_KEY")
+    collection = os.getenv("QDRANT_COLLECTION", "campus_assistant")
+    chunks_path = os.path.join(os.path.dirname(__file__), "vectorstore", "chunks.pkl")
 
-    if os.path.exists(index_path):
-        size_mb = os.path.getsize(index_path) / (1024 * 1024)
-        print(f"  {PASS} index.faiss exists ({size_mb:.2f} MB)")
+    if qdrant_url:
+        print(f"  {PASS} QDRANT_URL = {qdrant_url[:40]}...")
     else:
-        print(f"  {FAIL} index.faiss NOT FOUND — run 'python ingest.py'")
+        print(f"  {FAIL} QDRANT_URL — NOT SET")
 
-    if os.path.exists(pkl_path):
-        size_mb = os.path.getsize(pkl_path) / (1024 * 1024)
-        print(f"  {PASS} index.pkl exists ({size_mb:.2f} MB)")
+    if qdrant_key:
+        print(f"  {PASS} QDRANT_API_KEY is set")
     else:
-        print(f"  {FAIL} index.pkl NOT FOUND — run 'python ingest.py'")
+        print(f"  {WARN} QDRANT_API_KEY not set (ok for local Qdrant)")
+
+    print(f"  Collection name: '{collection}'")
+
+    if os.path.exists(chunks_path):
+        size_mb = os.path.getsize(chunks_path) / (1024 * 1024)
+        print(f"  {PASS} chunks.pkl (BM25) exists ({size_mb:.2f} MB)")
+    else:
+        print(f"  {FAIL} chunks.pkl NOT FOUND — run 'python ingest.py'")
 
 
 if __name__ == "__main__":
@@ -183,7 +191,7 @@ if __name__ == "__main__":
     check_supabase(supabase_url, supabase_key)
     check_openrouter(openai_key, openai_base)
     check_huggingface(hf_key)
-    check_faiss_index()
+    check_qdrant_collection()
 
     print(f"\n{'='*50}")
     print("Done!")

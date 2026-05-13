@@ -21,12 +21,12 @@ import traceback
 # ==================== LIFESPAN (STARTUP) ====================
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Load the FAISS index into memory on server startup."""
+    """Connect to Qdrant vector store on server startup."""
     try:
         load_index()
-        print("FAISS index loaded successfully!")
-    except FileNotFoundError:
-        print("WARNING: No FAISS index found. Run 'python ingest.py' first.")
+        print("Qdrant index connected successfully!")
+    except RuntimeError:
+        print("WARNING: Qdrant collection not found. Run 'python ingest.py' first.")
     yield
 
 

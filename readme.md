@@ -5,6 +5,7 @@
 [![Next.js](https://img.shields.io/badge/Frontend-Next.js_16-black?logo=next.js)](https://nextjs.org)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi)](https://fastapi.tiangolo.com)
 [![LangGraph](https://img.shields.io/badge/Orchestration-LangGraph-1C3C3C?logo=langchain)](https://langchain.com/langgraph)
+[![Qdrant](https://img.shields.io/badge/Vector_Store-Qdrant_Cloud-DC244C?logo=qdrant)](https://qdrant.tech)
 [![Supabase](https://img.shields.io/badge/Auth%20%26%20DB-Supabase-3ECF8E?logo=supabase)](https://supabase.com)
 [![Gemini](https://img.shields.io/badge/LLM-Gemini_2.5_Flash-4285F4?logo=google)](https://ai.google.dev)
 
@@ -77,7 +78,7 @@ Campus Assistant is a production-ready web application that answers student ques
 | **Deadlines** | Upload deadlines CSV; view color-coded cards by type (Exam, Assignment, Lab, Project, Quiz); delete all |
 | **Notices** | Upload notices JSON; view active announcements with per-item delete |
 | **Telemetry** | Real-time query logs: intent, latency, user |
-| **Rebuild Engine** | Re-chunk, re-embed, and rebuild the FAISS vector index |
+| **Rebuild Engine** | Re-chunk, re-embed, and re-upload to the Qdrant vector collection |
 
 ---
 
@@ -111,8 +112,9 @@ Campus Assistant is a production-ready web application that answers student ques
    Server    MCP Server  MCP Server
       │           │
       ▼           ▼
-  FAISS      timetable_*.csv
-  Index      deadlines.csv
+  Qdrant     timetable_*.csv
+  Cloud      deadlines.csv
+  (Vector DB)
 ```
 
 ### Multi-Agent Graph (`backend/graph.py`)
@@ -120,7 +122,7 @@ Campus Assistant is a production-ready web application that answers student ques
 | Agent | Role |
 |---|---|
 | **Supervisor** | Classifies intent (RAG / timetable / notices / general); deterministically routes short follow-ups |
-| **RAG Agent** | Calls Docs MCP → semantic FAISS search → returns chunks with citations |
+| **RAG Agent** | Calls Docs MCP → hybrid Qdrant + BM25 search + FlashRank reranking → returns chunks with citations |
 | **Timetable Agent** | Clarification gate for missing group; calls Timetable MCP |
 | **Notice Agent** | Calls Notices MCP for campus announcements |
 | **Response Writer** | Synthesises final answer; fast-path for clarification messages |
@@ -133,7 +135,7 @@ For a detailed deep-dive into **What, Why, and How** we use MCP, see our **[MCP 
 
 | Server | Tools | Data Source |
 |---|---|---|
-| **Docs** | `search_docs`, `get_chunk` | FAISS vector index |
+| **Docs** | `search_docs`, `get_chunk` | Qdrant Cloud vector collection |
 | **Timetable** | `get_timetable`, `get_deadlines` | `timetable_*.csv`, `deadlines.csv` |
 | **Notices** | `get_latest_notices` | `notices.json` |
 
@@ -148,10 +150,11 @@ For a detailed deep-dive into **What, Why, and How** we use MCP, see our **[MCP 
 | Orchestration | LangGraph (LangChain) |
 | LLM | Google Gemini 2.5 Flash |
 | Embeddings | HuggingFace `all-MiniLM-L6-v2` |
-| Vector Store | FAISS (local) |
+| Vector Store | **Qdrant Cloud** (persistent, cloud-hosted) |
+| Retrieval | Hybrid search: Qdrant dense + BM25 sparse + FlashRank reranking |
 | Database / Auth | Supabase PostgreSQL |
 | MCP Protocol | Python `mcp` SDK + FastMCP |
-| Storage | Local filesystem (`./data/`) |
+| Storage | Supabase Storage + Local filesystem (`./data/`) |
 
 ---
 
@@ -185,8 +188,8 @@ Campus-Assistant/
 │   │   ├── parser.py            # PDF/DOCX parser
 │   │   ├── chunker.py           # Text chunker
 │   │   ├── embeddings.py        # HuggingFace embeddings
-│   │   └── vectorstore.py       # FAISS index management
-│   ├── ingest.py                # CLI: rebuild vector index
+│   │   └── vectorstore.py       # Qdrant vector store management
+│   ├── ingest.py                # CLI: re-chunk & re-upload to Qdrant
 │   └── .env                     # API keys (do NOT commit)
 ├── mcp-servers/
 │   ├── docs/server.py           # Docs MCP server (FastMCP)
@@ -196,7 +199,7 @@ Campus-Assistant/
     ├── docs/                    # Uploaded PDFs/DOCX
     ├── timetable/               # timetable_*.csv, deadlines.csv
     ├── notices/                 # notices.json
-    └── index/                   # FAISS index files
+    └── vectorstore/             # BM25 chunks cache (chunks.pkl)
 ```
 
 ---
@@ -222,7 +225,7 @@ python -m venv .venv
 pip install -r requirements.txt
 
 # Create .env (see Environment Variables section below)
-python ingest.py              # Build FAISS index from uploaded docs
+python ingest.py              # Chunk docs & upload embeddings to Qdrant Cloud
 python -m uvicorn main:app --reload --port 8000
 ```
 
@@ -244,6 +247,11 @@ SUPABASE_URL=<supabase-project-url>
 SUPABASE_SERVICE_ROLE_KEY=<supabase-service-role-key>
 GOOGLE_API_KEY=<google-gemini-api-key>
 HUGGINGFACE_API_KEY=<huggingface-api-key>
+
+# Qdrant Cloud
+QDRANT_URL=<your-qdrant-cluster-url>          # e.g. https://xyz.qdrant.io
+QDRANT_API_KEY=<your-qdrant-api-key>
+QDRANT_COLLECTION=campus_assistant            # optional, defaults to campus_assistant
 ```
 
 ### `frontend/.env.local`
@@ -264,7 +272,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<supabase-anon-key>
 | `POST` | `/upload-timetable` | Upload CSV for a specific student group |
 | `POST` | `/upload-deadlines` | Upload deadlines CSV |
 | `POST` | `/upload-notices` | Upload notices JSON |
-| `POST` | `/rebuild-index` | Re-run FAISS ingestion pipeline |
+| `POST` | `/rebuild-index` | Re-chunk docs and re-upload to Qdrant |
 | `GET` | `/admin/docs` | List uploaded documents |
 | `GET` | `/admin/timetable` | List all timetable files by group |
 | `GET` | `/admin/deadlines` | View deadlines CSV contents |
