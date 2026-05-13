@@ -23,7 +23,11 @@ import traceback
 async def lifespan(app: FastAPI):
     """Sync files from Supabase Storage and load/rebuild FAISS index."""
     print("\n" + "="*50)
+    print("STARTUP: Lifespan started...")
+    print(f"RENDER Mode: {os.getenv('RENDER')}")
+    print(f"Port: {os.getenv('PORT')}")
     print("STARTUP: Syncing files from Supabase Storage...")
+
     
     # 1. Sync Documents
     try:

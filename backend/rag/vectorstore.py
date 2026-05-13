@@ -9,7 +9,8 @@ import pickle
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_community.retrievers import BM25Retriever
-from flashrank import Ranker, RerankRequest
+# from flashrank import Ranker, RerankRequest
+
 
 
 # Use /tmp on Render, otherwise local vectorstore directory
@@ -146,7 +147,9 @@ def search(index: FAISS, query: str, top_k: int = 5, filter: dict = None, use_hy
             combined.append(doc)
             seen_content.add(content_hash)
             
-    # 4. Rerank
-    print(f"[RAG Core] Reranking {len(combined)} hybrid candidates for query...")
-    final_results = rerank_results(query, combined, top_k=top_k)
-    return final_results
+    # 4. Rerank (Disabled on Render to save memory)
+    # print(f"[RAG Core] Reranking {len(combined)} hybrid candidates for query...")
+    # final_results = rerank_results(query, combined, top_k=top_k)
+    # return final_results
+    return combined[:top_k]
+

@@ -17,5 +17,5 @@ fastmcp
 mcp
 langgraph
 rank_bm25
-flashrank
+# flashrank (disabled for memory)
 supabase
