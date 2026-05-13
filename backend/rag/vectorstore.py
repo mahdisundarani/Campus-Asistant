@@ -12,14 +12,8 @@ from langchain_community.retrievers import BM25Retriever
 from flashrank import Ranker, RerankRequest
 
 
-# Use /tmp for ephemeral storage on Render, otherwise use local directory
-if os.getenv("RENDER"):
-    VECTORSTORE_DIR = "/tmp/vectorstore"
-else:
-    VECTORSTORE_DIR = os.path.join(os.path.dirname(__file__), "..", "vectorstore")
-
+VECTORSTORE_DIR = os.path.join(os.path.dirname(__file__), "..", "vectorstore")
 CHUNKS_PATH = os.path.join(VECTORSTORE_DIR, "chunks.pkl")
-
 
 
 def create_index(chunks: list[Document], embeddings) -> FAISS:
