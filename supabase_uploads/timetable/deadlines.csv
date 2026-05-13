@@ -1,0 +1,16 @@
+course_id,course_name,title,type,due_date,description
+CS401,Machine Learning,Assignment 1 – Linear Regression,Assignment,2026-04-05,Implement and compare linear regression models on a provided dataset. Submit a Jupyter notebook with analysis.
+CS401,Machine Learning,Mid-Semester Exam,Exam,2026-04-18,Covers Chapters 1–6: supervised learning, regression, classification, and model evaluation.
+CS401,Machine Learning,Project Proposal,Project,2026-05-02,Submit a 2-page proposal for your semester ML project. Include dataset, problem statement, and approach.
+CS402,Computer Networks,Lab Report 2 – TCP/IP Analysis,Lab,2026-04-08,Capture and analyse TCP/IP packets using Wireshark. Submit a structured lab report.
+CS402,Computer Networks,Quiz 3,Quiz,2026-04-14,Short quiz on transport layer protocols, TCP handshake, and congestion control.
+CS402,Computer Networks,Mid-Semester Exam,Exam,2026-04-20,Covers OSI model, data link, network, and transport layers.
+CS403,Database Systems,Assignment 2 – SQL Queries,Assignment,2026-04-06,Write and optimise SQL queries for the provided university schema. Cover joins, subqueries, and aggregations.
+CS403,Database Systems,Mid-Semester Exam,Exam,2026-04-19,Covers relational model, ER diagrams, normalisation (up to 3NF), and SQL.
+CS403,Database Systems,Project – Database Design,Project,2026-05-10,Design and implement a relational database for a chosen domain. Submit the schema, sample data, and a query report.
+CS404,Software Engineering,SRS Document,Assignment,2026-04-10,Produce a Software Requirements Specification document for your team's semester project.
+CS404,Software Engineering,Mid-Semester Exam,Exam,2026-04-21,Covers SDLC models, requirements engineering, UML diagrams, and testing strategies.
+CS404,Software Engineering,Sprint 1 Demo,Project,2026-05-05,Live demo of Sprint 1 deliverables. Evaluated on working features, code quality, and team collaboration.
+CS405,Operating Systems,Assignment 1 – Process Scheduling,Assignment,2026-04-07,Simulate FCFS, SJF, and Round-Robin scheduling algorithms. Provide Gantt charts and analysis.
+CS405,Operating Systems,Mid-Semester Exam,Exam,2026-04-22,Covers processes, threads, CPU scheduling, synchronisation, and deadlock.
+CS405,Operating Systems,Lab – Memory Management,Lab,2026-04-28,Implement a simple page-replacement algorithm (LRU/FIFO). Demonstrate via terminal output.

@@ -36,13 +36,15 @@ export default function Sidebar({
         try {
             const token = localStorage.getItem("token");
             if (!token) return;
-            const res = await fetch("http://localhost:8000/chat/sessions", {
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+            const res = await fetch(`${baseUrl}/chat/sessions`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             if (res.ok) {
                 const data = await res.json();
                 setSessions(data);
             }
+
         } catch (error) {
             console.error("Failed to fetch sessions", error);
         } finally {
@@ -59,7 +61,8 @@ export default function Sidebar({
         try {
             const token = localStorage.getItem("token");
             if (!token) return;
-            const res = await fetch(`http://localhost:8000/chat/sessions/${id}`, {
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+            const res = await fetch(`${baseUrl}/chat/sessions/${id}`, {
                 method: "PUT",
                 headers: {
                     "Authorization": `Bearer ${token}`,
@@ -71,6 +74,7 @@ export default function Sidebar({
                 setSessions(previousSessions);
                 console.error("Failed to rename session");
             }
+
         } catch (error) {
             setSessions(previousSessions);
             console.error("Failed to rename session", error);
@@ -92,7 +96,8 @@ export default function Sidebar({
                 setSessions(previousSessions);
                 return;
             }
-            const res = await fetch(`http://localhost:8000/chat/sessions/${id}`, {
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+            const res = await fetch(`${baseUrl}/chat/sessions/${id}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${token}` }
             });
@@ -100,6 +105,7 @@ export default function Sidebar({
                 setSessions(previousSessions);
                 console.error("Failed to delete session");
             }
+
         } catch (error) {
             setSessions(previousSessions);
             console.error("Failed to delete session", error);

@@ -21,26 +21,92 @@ import traceback
 # ==================== LIFESPAN (STARTUP) ====================
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Load the FAISS index into memory on server startup."""
+    """Sync files from Supabase Storage and load/rebuild FAISS index."""
+    print("\n" + "="*50)
+    print("STARTUP: Syncing files from Supabase Storage...")
+    
+    # 1. Sync Documents
     try:
+        doc_files = list_files("documents")
+        for f in doc_files:
+            name = f["name"]
+            # Skip folders if any
+            if name.endswith("/"): continue
+            
+            data = download_file("documents", name)
+            with open(os.path.join(DOCS_DIR, name), "wb") as local_f:
+                local_f.write(data)
+        print(f"Synced {len(doc_files)} files from 'documents' bucket.")
+        
+        # Sync doc_tags.json specifically
+        try:
+            data = download_file("documents", "doc_tags.json")
+            with open(os.path.join(DATA_BASE_DIR, "doc_tags.json"), "wb") as local_f:
+                local_f.write(data)
+            print("Synced doc_tags.json from Supabase.")
+        except:
+            print("No doc_tags.json found in Supabase. Starting fresh.")
+            
+    except Exception as e:
+
+        print(f"Error syncing documents: {e}")
+
+    # 2. Sync Timetables
+    try:
+        timetable_files = list_files("timetable")
+        for f in timetable_files:
+            name = f["name"]
+            data = download_file("timetable", name)
+            with open(os.path.join(TIMETABLE_DIR, name), "wb") as local_f:
+                local_f.write(data)
+        print(f"Synced {len(timetable_files)} files from 'timetable' bucket.")
+    except Exception as e:
+        print(f"Error syncing timetables: {e}")
+
+    # 3. Sync Notices
+    try:
+        notice_files = list_files("notices")
+        for f in notice_files:
+            name = f["name"]
+            data = download_file("notices", name)
+            with open(os.path.join(NOTICES_DIR, name), "wb") as local_f:
+                local_f.write(data)
+        print(f"Synced {len(notice_files)} files from 'notices' bucket.")
+    except Exception as e:
+        print(f"Error syncing notices: {e}")
+
+    # 4. Rebuild Index
+    try:
+        print("Rebuilding FAISS index from synced documents...")
+        tags_map = _load_tags()
+        ingest_documents(DOCS_DIR, tags_map=tags_map)
         load_index()
         print("FAISS index loaded successfully!")
-    except FileNotFoundError:
-        print("WARNING: No FAISS index found. Run 'python ingest.py' first.")
+    except Exception as e:
+        print(f"Error rebuilding index on startup: {e}")
+        
+    print("="*50 + "\n")
     yield
+
 
 
 # ==================== APP ====================
 app = FastAPI(title="Campus Assistant API", lifespan=lifespan)
 
 # ==================== CORS ====================
+FRONTEND_URLS = [
+    "http://localhost:3000",
+    "https://campus-assistant-frontend.vercel.app", # Placeholder - update this later
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
-    allow_credentials=False,
+    allow_origins=FRONTEND_URLS,
+    allow_credentials=True, # Changed to True for session support
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # ==================== SUPABASE CONFIG ====================
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -48,6 +114,24 @@ SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
 if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
     raise RuntimeError("Supabase environment variables not set")
+
+# ==================== STORAGE PATHS ====================
+IF_RENDER = os.getenv("RENDER") is not None
+if IF_RENDER:
+    DATA_BASE_DIR = "/tmp/data"
+else:
+    DATA_BASE_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
+
+DOCS_DIR = os.path.join(DATA_BASE_DIR, "docs")
+TIMETABLE_DIR = os.path.join(DATA_BASE_DIR, "timetable")
+NOTICES_DIR = os.path.join(DATA_BASE_DIR, "notices")
+
+os.makedirs(DOCS_DIR, exist_ok=True)
+os.makedirs(TIMETABLE_DIR, exist_ok=True)
+os.makedirs(NOTICES_DIR, exist_ok=True)
+
+from storage import upload_file, download_file, list_files, delete_file
+
 
 # Note: LLM is now configured inside agents/ (supervisor, timetable_agent, response_writer)
 
@@ -149,7 +233,7 @@ def assign_role(request: RoleAssignRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 # ==================== TAG STORAGE HELPERS ====================
-DOC_TAGS_PATH = os.path.join(os.path.dirname(__file__), "doc_tags.json")
+DOC_TAGS_PATH = os.path.join(DATA_BASE_DIR, "doc_tags.json")
 
 def _load_tags() -> dict:
     if not os.path.exists(DOC_TAGS_PATH):
@@ -160,21 +244,29 @@ def _load_tags() -> dict:
 def _save_tags(tags: dict) -> None:
     with open(DOC_TAGS_PATH, "w") as f:
         json.dump(tags, f, indent=2)
+    # Also upload to Supabase
+    with open(DOC_TAGS_PATH, "rb") as f:
+        upload_file("documents", "doc_tags.json", f.read())
+
 
 # ==================== FILE UPLOAD ====================
 @app.post("/upload")
-async def upload_file(
+async def upload_file_endpoint(
     file: UploadFile = File(...),
     department: str = Form(default=""),
     year: str = Form(default=""),
     course: str = Form(default=""),
     user=Depends(get_current_user),
 ):
-    os.makedirs("../data/docs", exist_ok=True)
-    path = f"../data/docs/{file.filename}"
-
+    contents = await file.read()
+    
+    # Save to local synced folder
+    path = os.path.join(DOCS_DIR, file.filename)
     with open(path, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+        f.write(contents)
+
+    # Save to Supabase Storage
+    upload_file("documents", file.filename, contents)
 
     # Save tags for this file
     tags = _load_tags()
@@ -187,17 +279,17 @@ async def upload_file(
 
     return {"message": "File uploaded", "path": path}
 
+
 # ==================== ADMIN ROUTING ====================
 @app.get("/admin/docs")
 def list_admin_docs(user=Depends(require_admin)):
-    docs_dir = "../data/docs"
-    if not os.path.exists(docs_dir):
+    if not os.path.exists(DOCS_DIR):
         return []
     
     tags = _load_tags()
     files = []
-    for filename in os.listdir(docs_dir):
-        file_path = os.path.join(docs_dir, filename)
+    for filename in os.listdir(DOCS_DIR):
+        file_path = os.path.join(DOCS_DIR, filename)
         if os.path.isfile(file_path):
             file_tags = tags.get(filename, {})
             files.append({
@@ -209,19 +301,27 @@ def list_admin_docs(user=Depends(require_admin)):
             })
     return files
 
+
 @app.delete("/admin/docs/{filename}")
 def delete_admin_doc(filename: str, user=Depends(require_admin)):
-    docs_dir = "../data/docs"
-    file_path = os.path.join(docs_dir, filename)
+    file_path = os.path.join(DOCS_DIR, filename)
     
-    if not os.path.abspath(file_path).startswith(os.path.abspath(docs_dir)):
+    if not os.path.abspath(file_path).startswith(os.path.abspath(DOCS_DIR)):
         raise HTTPException(status_code=400, detail="Invalid filename")
 
     if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="File not found")
+        # Even if not local, try deleting from Supabase
+        try:
+            delete_file("documents", filename)
+            return {"message": f"Deleted {filename} from Supabase"}
+        except:
+            raise HTTPException(status_code=404, detail="File not found")
         
     try:
         os.remove(file_path)
+        # Delete from Supabase
+        delete_file("documents", filename)
+        
         # Also clean up tags entry
         tags = _load_tags()
         tags.pop(filename, None)
@@ -230,19 +330,20 @@ def delete_admin_doc(filename: str, user=Depends(require_admin)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/admin/docs/{filename}/view")
 def view_admin_doc(filename: str, user=Depends(require_admin)):
-    docs_dir = "../data/docs"
-    file_path = os.path.join(docs_dir, filename)
+    file_path = os.path.join(DOCS_DIR, filename)
     
     # Simple path traversal protection
-    if not os.path.abspath(file_path).startswith(os.path.abspath(docs_dir)):
+    if not os.path.abspath(file_path).startswith(os.path.abspath(DOCS_DIR)):
         raise HTTPException(status_code=400, detail="Invalid filename")
 
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="File not found")
         
     return FileResponse(file_path)
+
 
 @app.get("/admin/logs")
 def get_admin_logs(user=Depends(require_admin)):
@@ -267,30 +368,41 @@ async def upload_timetable(
     group: str = Form(default=""),
     user=Depends(require_admin)
 ):
-    os.makedirs("../data/timetable", exist_ok=True)
+    contents = await file.read()
     if group.strip():
-        # Save group-specific file: timetable_CS-A.csv, timetable_CS-B.csv etc.
         safe_group = group.strip().upper().replace(" ", "-")
-        path = f"../data/timetable/timetable_{safe_group}.csv"
+        filename = f"timetable_{safe_group}.csv"
     else:
-        # Falling back to shared / global timetable
-        path = "../data/timetable/timetable.csv"
+        filename = "timetable.csv"
+    
+    path = os.path.join(TIMETABLE_DIR, filename)
     with open(path, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+        f.write(contents)
+    
+    # Upload to Supabase
+    upload_file("timetable", filename, contents)
+    
     return {"message": f"Timetable uploaded successfully", "path": path}
+
 
 @app.post("/upload-deadlines")
 async def upload_deadlines(file: UploadFile = File(...), user=Depends(require_admin)):
-    os.makedirs("../data/timetable", exist_ok=True)
-    path = f"../data/timetable/deadlines.csv"
+    contents = await file.read()
+    filename = "deadlines.csv"
+    path = os.path.join(TIMETABLE_DIR, filename)
     with open(path, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+        f.write(contents)
+    
+    # Upload to Supabase
+    upload_file("timetable", filename, contents)
+    
     return {"message": "Deadlines uploaded successfully"}
+
 
 @app.get("/admin/deadlines")
 def get_admin_deadlines(user=Depends(require_admin)):
     """Read deadlines.csv and return rows as a list of dicts."""
-    path = "../data/timetable/deadlines.csv"
+    path = os.path.join(TIMETABLE_DIR, "deadlines.csv")
     if not os.path.exists(path):
         return {"exists": False, "rows": [], "headers": []}
     try:
@@ -310,35 +422,41 @@ def get_admin_deadlines(user=Depends(require_admin)):
 @app.delete("/admin/deadlines")
 def delete_admin_deadlines(user=Depends(require_admin)):
     """Delete the uploaded deadlines.csv file."""
-    path = "../data/timetable/deadlines.csv"
+    filename = "deadlines.csv"
+    path = os.path.join(TIMETABLE_DIR, filename)
     if not os.path.exists(path):
         raise HTTPException(status_code=404, detail="No deadlines file found")
     try:
         os.remove(path)
+        # Delete from Supabase
+        delete_file("timetable", filename)
         return {"message": "Deadlines deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/admin/notices")
 def get_admin_notices(user=Depends(require_admin)):
-    path = "../data/notices/notices.json"
+    path = os.path.join(NOTICES_DIR, "notices.json")
     if not os.path.exists(path):
         return []
     with open(path, "r") as f:
         return json.load(f)
 
+
 @app.get("/admin/timetable")
 def get_admin_timetable(user=Depends(require_admin)):
     """List all uploaded timetable files with their row counts."""
-    timetable_dir = "../data/timetable"
-    if not os.path.exists(timetable_dir):
+    if not os.path.exists(TIMETABLE_DIR):
         return []
+
     import csv as _csv
     results = []
-    for fname in sorted(os.listdir(timetable_dir)):
+    for fname in sorted(os.listdir(TIMETABLE_DIR)):
         if not fname.endswith(".csv") or fname == "deadlines.csv":
             continue
-        fpath = os.path.join(timetable_dir, fname)
+        fpath = os.path.join(TIMETABLE_DIR, fname)
+
         try:
             with open(fpath, "r", encoding="utf-8") as f:
                 rows = list(_csv.DictReader(f))
@@ -364,9 +482,8 @@ def get_admin_timetable(user=Depends(require_admin)):
 @app.delete("/admin/timetable/{filename}")
 def delete_admin_timetable(filename: str, user=Depends(require_admin)):
     """Delete a specific timetable file by filename (e.g. timetable_CS-A.csv)."""
-    timetable_dir = os.path.abspath("../data/timetable")
-    file_path = os.path.join(timetable_dir, filename)
-    if not file_path.startswith(timetable_dir):
+    file_path = os.path.join(TIMETABLE_DIR, filename)
+    if not os.path.abspath(file_path).startswith(os.path.abspath(TIMETABLE_DIR)):
         raise HTTPException(status_code=400, detail="Invalid filename")
     if not filename.endswith(".csv") or filename == "deadlines.csv":
         raise HTTPException(status_code=400, detail="Invalid file")
@@ -374,14 +491,18 @@ def delete_admin_timetable(filename: str, user=Depends(require_admin)):
         raise HTTPException(status_code=404, detail="File not found")
     try:
         os.remove(file_path)
+        # Delete from Supabase
+        delete_file("timetable", filename)
         return {"message": f"Deleted {filename} successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.delete("/admin/notices/{notice_index}")
 def delete_admin_notice(notice_index: int, user=Depends(require_admin)):
     """Delete a single notice by its index in the notices.json array."""
-    path = "../data/notices/notices.json"
+    filename = "notices.json"
+    path = os.path.join(NOTICES_DIR, filename)
     if not os.path.exists(path):
         raise HTTPException(status_code=404, detail="notices.json not found")
     try:
@@ -390,9 +511,17 @@ def delete_admin_notice(notice_index: int, user=Depends(require_admin)):
         if notice_index < 0 or notice_index >= len(data):
             raise HTTPException(status_code=404, detail="Notice index out of range")
         data.pop(notice_index)
+        
+        # Save locally
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
+            
+        # Upload updated file to Supabase
+        with open(path, "rb") as f:
+            upload_file("notices", filename, f.read())
+            
         return {"message": "Notice deleted successfully"}
+
     except HTTPException:
         raise
     except Exception as e:
@@ -400,23 +529,30 @@ def delete_admin_notice(notice_index: int, user=Depends(require_admin)):
 
 @app.post("/upload-notices")
 async def upload_notices(file: UploadFile = File(...), user=Depends(require_admin)):
-    os.makedirs("../data/notices", exist_ok=True)
-    path = "../data/notices/notices.json"
+    contents = await file.read()
+    filename = "notices.json"
+    path = os.path.join(NOTICES_DIR, filename)
     with open(path, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+        f.write(contents)
+        
+    # Upload to Supabase
+    upload_file("notices", filename, contents)
+    
     return {"message": "Notices updated successfully"}
 
+
 @app.post("/rebuild-index")
-def rebuild_index(user=Depends(require_admin)):
+def rebuild_index_endpoint(user=Depends(require_admin)):
     try:
         # Read saved tags and pass to ingestion
         tags_map = _load_tags()
-        ingest_documents("../data/docs", tags_map=tags_map)
+        ingest_documents(DOCS_DIR, tags_map=tags_map)
         # Reload the index into memory
         load_index()
         return {"message": "Search index rebuilt successfully!"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 from graph import campus_graph
 
