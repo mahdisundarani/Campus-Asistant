@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch } from "../../lib/api-client";
 
 interface ChatSession {
     id: string;
@@ -36,9 +37,7 @@ export default function Sidebar({
         try {
             const token = localStorage.getItem("token");
             if (!token) return;
-            const res = await fetch("http://localhost:8000/chat/sessions", {
-                headers: { "Authorization": `Bearer ${token}` }
-            });
+            const res = await apiFetch("/chat/sessions");
             if (res.ok) {
                 const data = await res.json();
                 setSessions(data);
@@ -57,14 +56,9 @@ export default function Sidebar({
         setEditTitle("");
 
         try {
-            const token = localStorage.getItem("token");
-            if (!token) return;
-            const res = await fetch(`http://localhost:8000/chat/sessions/${id}`, {
+            const res = await apiFetch(`/chat/sessions/${id}`, {
                 method: "PUT",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ title: newTitle })
             });
             if (!res.ok) {
@@ -87,14 +81,8 @@ export default function Sidebar({
         }
 
         try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                setSessions(previousSessions);
-                return;
-            }
-            const res = await fetch(`http://localhost:8000/chat/sessions/${id}`, {
-                method: "DELETE",
-                headers: { "Authorization": `Bearer ${token}` }
+            const res = await apiFetch(`/chat/sessions/${id}`, {
+                method: "DELETE"
             });
             if (!res.ok) {
                 setSessions(previousSessions);

@@ -32,7 +32,8 @@ export default function SignupPage() {
         // Wait for the user to be created in Supabase Auth, then inject the role into user_roles
         if (data?.user?.id) {
             try {
-                const roleResponse = await fetch("http://localhost:8000/assign-role", {
+                const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+                const roleResponse = await fetch(`${baseUrl}/assign-role`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ user_id: data.user.id, role }),

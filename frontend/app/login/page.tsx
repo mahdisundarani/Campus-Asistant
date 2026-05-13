@@ -46,7 +46,8 @@ function LoginContent() {
 
         if (role === "admin") {
             try {
-                const res = await fetch("http://localhost:8000/me", {
+                const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+                const res = await fetch(`${baseUrl}/me`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
