@@ -55,13 +55,13 @@ export default function Sidebar({
         setSessions(sessions.map(s => s.id === id ? { ...s, title: newTitle } : s));
         setEditingSessionId(null);
         setEditTitle("");
-        
+
         try {
             const token = localStorage.getItem("token");
             if (!token) return;
             const res = await fetch(`http://localhost:8000/chat/sessions/${id}`, {
                 method: "PUT",
-                headers: { 
+                headers: {
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"
                 },
@@ -79,7 +79,7 @@ export default function Sidebar({
 
     const handleDelete = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        
+
         const previousSessions = [...sessions];
         setSessions(sessions.filter(s => s.id !== id));
         if (currentSessionId === id) {
@@ -190,10 +190,10 @@ export default function Sidebar({
                                     ) : (
                                         editingSessionId === chat.id ? (
                                             <div className="flex items-center w-full" onClick={e => e.stopPropagation()}>
-                                                <input 
-                                                    type="text" 
-                                                    className="w-full bg-transparent border-b border-blue-400 focus:outline-none text-sm text-gray-900 dark:text-gray-100 placeholder-transparent" 
-                                                    value={editTitle} 
+                                                <input
+                                                    type="text"
+                                                    className="w-full bg-transparent border-b border-blue-400 focus:outline-none text-sm text-gray-900 dark:text-gray-100 placeholder-transparent"
+                                                    value={editTitle}
                                                     onChange={e => setEditTitle(e.target.value)}
                                                     onKeyDown={e => {
                                                         if (e.key === 'Enter') handleRename(chat.id, editTitle);
@@ -215,7 +215,7 @@ export default function Sidebar({
                                         )
                                     )}
                                 </button>
-                                
+
                                 {!isCollapsed && editingSessionId === chat.id && (
                                     <div className="absolute right-2 flex items-center space-x-1">
                                         <button onClick={(e) => { e.stopPropagation(); handleRename(chat.id, editTitle); }} className="text-green-500 hover:text-green-600 p-1" title="Save">

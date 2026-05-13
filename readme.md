@@ -125,7 +125,11 @@ Campus Assistant is a production-ready web application that answers student ques
 | **Notice Agent** | Calls Notices MCP for campus announcements |
 | **Response Writer** | Synthesises final answer; fast-path for clarification messages |
 
-### MCP Servers (`mcp-servers/`)
+### Model Context Protocol (MCP)
+
+This project leverage the **Model Context Protocol (MCP)** to connect our AI agents to campus data. MCP is an open standard that enables models to access tools and data sources through a universal, plug-and-play interface.
+
+For a detailed deep-dive into **What, Why, and How** we use MCP, see our **[MCP Guide](MCP_GUIDE.md)**.
 
 | Server | Tools | Data Source |
 |---|---|---|

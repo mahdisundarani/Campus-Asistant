@@ -108,8 +108,8 @@ function LoginContent() {
                             type="button"
                             onClick={() => setRole("student")}
                             className={`flex-1 py-2.5 px-4 text-sm font-medium rounded-lg transition-all duration-300 ${role === "student"
-                                    ? "bg-primary/20 text-primary border border-primary/50 shadow-[0_0_15px_rgba(0,229,255,0.2)]"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                                ? "bg-primary/20 text-primary border border-primary/50 shadow-[0_0_15px_rgba(0,229,255,0.2)]"
+                                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                                 }`}
                         >
                             Student
@@ -118,8 +118,8 @@ function LoginContent() {
                             type="button"
                             onClick={() => setRole("admin")}
                             className={`flex-1 py-2.5 px-4 text-sm font-medium rounded-lg transition-all duration-300 ${role === "admin"
-                                    ? "bg-secondary/20 text-secondary border border-secondary/50 shadow-[0_0_15px_rgba(157,0,255,0.2)]"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                                ? "bg-secondary/20 text-secondary border border-secondary/50 shadow-[0_0_15px_rgba(157,0,255,0.2)]"
+                                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                                 }`}
                         >
                             Administrator

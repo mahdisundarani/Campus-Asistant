@@ -22,7 +22,7 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
         if (response.status === 401) {
             console.warn("Session expired or invalid. Redirecting to login...");
             localStorage.removeItem("token");
-            
+
             // Redirect to login with an 'expired' flag
             if (typeof window !== "undefined") {
                 window.location.href = "/login?expired=true";

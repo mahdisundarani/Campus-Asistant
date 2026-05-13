@@ -1,0 +1,107 @@
+<h1 id="campus-assistant-master-interview-guide">🎓 Campus Assistant: Master Interview Guide</h1>
+<blockquote>
+<p><strong>Objective</strong>: Prepare for a technical interview focused on AI, RAG, and Agentic Workflows. This guide covers every “smallest detail” of the project.</p>
+</blockquote>
+<hr />
+<h2 id="project-high-level-pitch">1. Project High-Level Pitch</h2>
+<p><strong>Campus Assistant</strong> is a production-ready AI platform designed to automate student support. It doesn’t just “chat”; it routes queries through a multi-agent graph, retrieves real-time data via the Model Context Protocol (MCP), and provides grounded answers with verifiable citations from campus handbooks.</p>
+<p><strong>Key Problem Solved</strong>: Students often struggle to find specific policy info (attendance, credits) or real-time schedules (deadlines, timetables) buried in static documents.</p>
+<hr />
+<h2 id="technical-stack-the-full-stack-ai">2. Technical Stack (The “Full Stack AI”)</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Layer</th>
+<th>technology</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Frontend</strong></td>
+<td>Next.js 16 (App Router), Tailwind CSS v4, Lucide React (Icons)</td>
+</tr>
+<tr class="even">
+<td><strong>Backend</strong></td>
+<td>FastAPI (Python 3.11+), Uvicorn</td>
+</tr>
+<tr class="odd">
+<td><strong>Agentic Framework</strong></td>
+<td>LangGraph (Stateful, Multi-Agent Orchestration)</td>
+</tr>
+<tr class="even">
+<td><strong>LLM</strong></td>
+<td>Google Gemini 2.5 Flash</td>
+</tr>
+<tr class="odd">
+<td><strong>Embeddings</strong></td>
+<td>HuggingFace <code>all-MiniLM-L6-v2</code> (384 dimensions)</td>
+</tr>
+<tr class="even">
+<td><strong>Vector DB</strong></td>
+<td>FAISS (Local flat index)</td>
+</tr>
+<tr class="odd">
+<td><strong>Protocol</strong></td>
+<td>Model Context Protocol (MCP) using FastMCP</td>
+</tr>
+<tr class="even">
+<td><strong>Database</strong></td>
+<td>Supabase (PostgreSQL) for Auth, Chat History, and Telemetry Logs</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="the-smallest-details-deep-dives">3. The “Smallest Details” (Deep Dives)</h2>
+<h3 id="a.-rag-pipeline-implementation">A. RAG Pipeline Implementation</h3>
+<ul>
+<li><strong>Parser</strong>: Uses <code>pdfplumber</code> for pixel-perfect text extraction from PDFs. Preserves page numbers which are vital for citations.</li>
+<li><strong>Chunking Strategy</strong>: Recursive Character Splitting.
+<ul>
+<li><strong>Chunk Size</strong>: 600 characters.</li>
+<li><strong>Overlap</strong>: 100 characters (ensures no semantic loss at boundaries).</li>
+<li><strong>Separators</strong>: <code>["\n\n", "\n", ". ", " ", ""]</code>.</li>
+</ul></li>
+<li><strong>Hybrid Search Strategy</strong>:
+<ol type="1">
+<li><strong>Dense Search</strong>: FAISS similarity search for semantic meaning.</li>
+<li><strong>Sparse Search</strong>: BM25 keyword matching for specific entities (e.g., Course Codes “CS101”).</li>
+</ol></li>
+<li><strong>Deduplication</strong>: Results from both searches are merged and deduplicated via MD5-like content hashing.</li>
+<li><strong>Reranker</strong>: Uses <code>FlashRank</code> with the <code>ms-marco-MiniLM-L-12-v2</code> model to sort the final results based on query relevance before sending to the LLM.</li>
+</ul>
+<h3 id="b.-agentic-workflow-langgraph">B. Agentic Workflow (LangGraph)</h3>
+<p>The system uses a <strong>Supervisor-Worker</strong> design pattern: 1. <strong>Supervisor Node</strong>: Acts as the router. It uses a Zero-Shot LLM call to classify the intent into: <code>rag</code>, <code>timetable</code>, <code>notices</code>, <code>planner</code>, or <code>general</code>. 2. <strong>Specialist Agents</strong>: - <strong>RAG Agent</strong>: Calls the <code>Docs MCP</code> tool to search the knowledge base. - <strong>Timetable Agent</strong>: Accesses CSV-based schedules. It includes a “clarification gate”—if the student hasn’t provided their group (e.g., “CS-A”), the agent asks for it before searching. - <strong>Notice Agent</strong>: Fetches the latest campus announcements. 3. <strong>Response Writer</strong>: Synthesizes the final response. It ensures the output is “grounded” in the retrieved context and includes citations.</p>
+<h3 id="c.-mcp-model-context-protocol">C. MCP (Model Context Protocol)</h3>
+<p>We implemented three separate MCP servers using the <code>FastMCP</code> SDK: - <code>docs-server</code>: Bridges FAISS with the LLM. - <code>timetable-server</code>: Interfaces with <code>./data/timetable/*.csv</code>. - <code>notices-server</code>: Interfaces with <code>notices.json</code>. - <strong>Why MCP?</strong>: It decouples the data source from the core AI logic, making the system highly modular and scalable.</p>
+<hr />
+<h2 id="key-engineering-challenges-solutions">4. Key Engineering Challenges &amp; Solutions</h2>
+<ol type="1">
+<li><strong>Challenge</strong>: LLM Hallucinations in policy answers.
+<ul>
+<li><strong>Solution</strong>: “Hard” RAG. We force the LLM to use only retrieved context. If No info exists, it must say “I don’t know.” We also add page citations for trust.</li>
+</ul></li>
+<li><strong>Challenge</strong>: Multi-turn context in Agent Graph.
+<ul>
+<li><strong>Solution</strong>: LangGraph <code>GraphState</code>. We maintain a shared state object that passes history and retrieved data through every node.</li>
+</ul></li>
+<li><strong>Challenge</strong>: Latency in AI responses.
+<ul>
+<li><strong>Solution</strong>: SSE (Server-Sent Events) for streaming responses on the frontend, providing immediate feedback despite background processing.</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="potential-interview-questions-qa">5. Potential Interview Questions (Q&amp;A)</h2>
+<p><strong>Q: Why choose Gemini 2.5 Flash over GPT-4?</strong> <em>A: Gemini Flash offers a massive context window (1M+ tokens) and lower latency, making it ideal for processing multiple document chunks and driving intermediate agent steps without high costs.</em></p>
+<p><strong>Q: How do you handle document updates?</strong> <em>A: We have a “Rebuild Engine” endpoint. When an admin uploads a new PDF, the system triggers the ingestion pipeline: parsing → chunking → embedding → FAISS index update. This is built as an idempotent operation.</em></p>
+<p><strong>Q: Why use FAISS instead of a cloud vector database like Pinecone?</strong> <em>A: For a campus-sized deployment, FAISS is extremely fast, cost-effective (free), and allows for local data sovereignty. Since the index is small enough to fit in RAM, search latency is sub-10ms.</em></p>
+<p><strong>Q: How did you evaluate the system?</strong> <em>A: We ran an offline evaluation suite (<code>eval/runner.py</code>) using a “Ground Truth” dataset of 80 queries. We measured Intent Routing Accuracy (97.5%) and Citation Accuracy. This ensured the supervisor doesn’t misroute queries.</em></p>
+<hr />
+<h2 id="project-architecture-diagram-simplified">6. Project Architecture Diagram (Simplified)</h2>
+<pre class="mermaid"><code>graph LR
+    User --&gt; Frontend[Next.js UI]
+    Frontend --&gt; Backend[FastAPI]
+    Backend --&gt; LangGraph[Agent Hub]
+    LangGraph --&gt; Supervisor[Supervisor Agent]
+    Supervisor --&gt; Specialist[RAG/Timetable Agent]
+    Specialist --&gt; MCP[MCP Servers]
+    MCP --&gt; Data[(FAISS/CSVs)]</code></pre>
