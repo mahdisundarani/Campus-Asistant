@@ -10,18 +10,16 @@ import json
 from dotenv import load_dotenv
 load_dotenv()
 
-from langchain_openai import ChatOpenAI
+from langchain_core.messages import BaseMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from agents.state import GraphState
 import mcp_client
 
-
-llm = ChatOpenAI(
-    model="google/gemini-2.5-flash",
-    openai_api_key=os.getenv("OPENROUTER_API_KEY"),
-    openai_api_base=os.getenv("OPENROUTER_BASE_URL"),
+llm = ChatGoogleGenerativeAI(
+    model=os.getenv("LLM_MODEL", "gemini-3.8-flash"),
     temperature=0.0,
-    max_retries=3,    # Auto-retry transient OpenRouter/Gemini 500s
+    max_retries=3,
 )
 
 # ==================== TIMETABLE PARAMETER EXTRACTION ====================
@@ -77,9 +75,9 @@ Examples:
 """
 
 
-async def _extract_timetable_params(query: str, history: list[dict] = None) -> dict:
+async def _extract_timetable_params(query: str, history: list[dict] | None = None) -> dict:
     """Use Gemini to extract day and student_group from query."""
-    messages = [
+    messages: list[BaseMessage] = [
         SystemMessage(content=TIMETABLE_EXTRACT_PROMPT),
     ]
     if history:
@@ -92,7 +90,12 @@ async def _extract_timetable_params(query: str, history: list[dict] = None) -> d
     messages.append(HumanMessage(content=query))
     response = await llm.ainvoke(messages)
     try:
-        text = response.content.strip()
+        text = response.content
+        if isinstance(text, list):
+            text = " ".join([b.get("text", "") if isinstance(b, dict) else b for b in text])
+        elif not isinstance(text, str):
+            text = str(text)  # type: ignore
+        text = text.strip()
         # Find the first { and last } to extract JSON
         start_idx = text.find('{')
         end_idx = text.rfind('}')
@@ -105,9 +108,9 @@ async def _extract_timetable_params(query: str, history: list[dict] = None) -> d
         return {"day": None, "student_group": None}
 
 
-async def _extract_deadline_params(query: str, history: list[dict] = None) -> dict:
+async def _extract_deadline_params(query: str, history: list[dict] | None = None) -> dict:
     """Use Gemini to extract course_id from query."""
-    messages = [
+    messages: list[BaseMessage] = [
         SystemMessage(content=DEADLINE_EXTRACT_PROMPT),
     ]
     if history:
@@ -120,7 +123,12 @@ async def _extract_deadline_params(query: str, history: list[dict] = None) -> di
     messages.append(HumanMessage(content=query))
     response = await llm.ainvoke(messages)
     try:
-        text = response.content.strip()
+        text = response.content
+        if isinstance(text, list):
+            text = " ".join([b.get("text", "") if isinstance(b, dict) else b for b in text])
+        elif not isinstance(text, str):
+            text = str(text)  # type: ignore
+        text = text.strip()
         start_idx = text.find('{')
         end_idx = text.rfind('}')
         if start_idx != -1 and end_idx != -1:
@@ -158,7 +166,7 @@ async def timetable_node(state: GraphState) -> dict:
 
             print(f"[Timetable Agent] Getting deadlines (course_id={course_id})")
 
-            result_str = await mcp_client.get_deadlines(course_id)
+            result_str = await mcp_client.get_deadlines(course_id or None)
             context.append({
                 "tool": "get_deadlines",
                 "course_id": course_id,

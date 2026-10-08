@@ -31,3 +31,15 @@ yarn-error.log*
 # OS Files
 .DS_Store
 Thumbs.db
+
+# Uploaded Data and Vector Store
+backend/data/*
+!backend/data/.gitkeep
+backend/data/docs/*
+!backend/data/docs/.gitkeep
+backend/data/timetable/*
+!backend/data/timetable/.gitkeep
+backend/data/notices/*
+!backend/data/notices/.gitkeep
+backend/data/vectorstore/*
+!backend/data/vectorstore/.gitkeep

@@ -562,6 +562,7 @@ async def chat(request: ChatRequest, user=Depends(get_current_user)):
             yield json.dumps({"type": "trace", "message": trace_msg}) + "\n"
 
             # Run the LangGraph multi-agent pipeline
+            # pyrefly: ignore [missing-attribute]
             async for event in campus_graph.astream({
                 "query": request.message,
                 "history": request.history,

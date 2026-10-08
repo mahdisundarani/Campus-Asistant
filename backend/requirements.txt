@@ -4,6 +4,7 @@ python-multipart
 python-jose[cryptography]
 passlib[bcrypt]
 langchain
+langchain-core
 langchain-google-genai
 langchain-openai
 qdrant-client
@@ -16,4 +17,7 @@ langchain-community
 fastmcp
 langgraph
 rank_bm25
-flashrank
+flashrank
+requests
+supabase
+fastembed

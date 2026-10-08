@@ -181,8 +181,22 @@ if __name__ == "__main__":
 
     supabase_url = check_env_var("SUPABASE_URL")
     supabase_key = check_env_var("SUPABASE_SERVICE_ROLE_KEY")
-    openai_key = check_env_var("OPENAI_API_KEY")
-    openai_base = check_env_var("OPENAI_API_BASE")
+    openai_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY")
+    if os.getenv("OPENROUTER_API_KEY"):
+        check_env_var("OPENROUTER_API_KEY")
+    elif os.getenv("OPENAI_API_KEY"):
+        check_env_var("OPENAI_API_KEY")
+    else:
+        print(f"  {FAIL} OPENROUTER_API_KEY (or OPENAI_API_KEY) — NOT SET")
+
+    openai_base = os.getenv("OPENROUTER_BASE_URL") or os.getenv("OPENAI_API_BASE") or "https://openrouter.ai/api/v1"
+    if os.getenv("OPENROUTER_BASE_URL"):
+        check_env_var("OPENROUTER_BASE_URL")
+    elif os.getenv("OPENAI_API_BASE"):
+        check_env_var("OPENAI_API_BASE")
+    else:
+        print(f"  {PASS} OPENROUTER_BASE_URL = {openai_base}")
+
     hf_key = check_env_var("HUGGINGFACE_API_KEY")
     llm_model = check_env_var("LLM_MODEL")
     if not llm_model:

@@ -9,17 +9,14 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.messages import HumanMessage, SystemMessage, AIMessage, BaseMessage
 from agents.state import GraphState
 
-
-llm = ChatOpenAI(
-    model="google/gemini-2.5-flash",
-    openai_api_key=os.getenv("OPENROUTER_API_KEY"),
-    openai_api_base=os.getenv("OPENROUTER_BASE_URL"),
+llm = ChatGoogleGenerativeAI(
+    model=os.getenv("LLM_MODEL", "gemini-3.8-flash"),
     temperature=0.3,
-    max_retries=3,    # Auto-retry transient OpenRouter/Gemini 500s
+    max_retries=3,
 )
 
 SYSTEM_PROMPT = """You are a helpful campus assistant for Greenfield University.
@@ -94,7 +91,7 @@ async def response_writer_node(state: GraphState) -> dict:
         context_str = "\n\n---\n\n".join(context_parts)
 
     # Build messages
-    messages = [
+    messages: list[BaseMessage] = [
         SystemMessage(content=SYSTEM_PROMPT.format(context=context_str)),
     ]
 
@@ -110,7 +107,13 @@ async def response_writer_node(state: GraphState) -> dict:
     print(f"[Response Writer] Generating response ({len(context_parts)} context items)")
 
     response = await llm.ainvoke(messages)
+    
+    response_content = response.content
+    if isinstance(response_content, list):
+        response_content = " ".join([b.get("text", "") if isinstance(b, dict) else b for b in response_content])
+    elif not isinstance(response_content, str):
+        response_content = str(response_content)  # type: ignore
 
-    print(f"[Response Writer] Response generated ({len(response.content)} chars)")
+    print(f"[Response Writer] Response generated ({len(response_content)} chars)")
 
-    return {"response": response.content}
+    return {"response": response_content}

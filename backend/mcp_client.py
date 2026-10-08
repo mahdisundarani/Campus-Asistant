@@ -68,21 +68,21 @@ async def _get_notices_session() -> AsyncGenerator[ClientSession, None]:
 
 # ==================== DOCS TOOLS ====================
 
-async def search_docs(query: str, top_k: int = 5) -> list[dict]:
+async def search_docs(query: str, top_k: int = 5) -> str:
     """Call the Docs MCP server to search FAISS."""
     async with _get_docs_session() as session:
         result = await session.call_tool("search_docs", arguments={"query": query, "top_k": top_k})
-        return result.content[0].text if result.content else "[]"
+        return getattr(result.content[0], "text", "[]") if result.content else "[]"
 
-async def get_doc_chunk(doc_name: str, page: int) -> dict:
+async def get_doc_chunk(doc_name: str, page: int) -> str:
     """Call the Docs MCP server to fetch a specific chunk."""
     async with _get_docs_session() as session:
         result = await session.call_tool("get_chunk", arguments={"doc_name": doc_name, "page": page})
-        return result.content[0].text if result.content else "{}"
+        return getattr(result.content[0], "text", "{}") if result.content else "{}"
 
 # ==================== TIMETABLE TOOLS ====================
 
-async def get_timetable(day: str, student_group: str = None) -> list[dict]:
+async def get_timetable(day: str, student_group: str | None = None) -> str:
     """Call the Timetable MCP server to get a day's schedule."""
     args = {"day": day}
     if student_group:
@@ -90,9 +90,9 @@ async def get_timetable(day: str, student_group: str = None) -> list[dict]:
         
     async with _get_timetable_session() as session:
         result = await session.call_tool("get_timetable", arguments=args)
-        return result.content[0].text if result.content else "[]"
+        return getattr(result.content[0], "text", "[]") if result.content else "[]"
 
-async def get_deadlines(course_id: str = None) -> list[dict]:
+async def get_deadlines(course_id: str | None = None) -> str:
     """Call the Timetable MCP server to get upcoming deadlines."""
     args = {}
     if course_id:
@@ -100,19 +100,19 @@ async def get_deadlines(course_id: str = None) -> list[dict]:
         
     async with _get_timetable_session() as session:
         result = await session.call_tool("get_deadlines", arguments=args)
-        return result.content[0].text if result.content else "[]"
+        return getattr(result.content[0], "text", "[]") if result.content else "[]"
 
 # ==================== NOTICES TOOLS ====================
 
-async def get_latest_notices(department: str = None, limit: int = 5) -> list[dict]:
+async def get_latest_notices(department: str | None = None, limit: int = 5) -> str:
     """Call the Notices MCP server to get latest campus news."""
-    args = {"limit": limit}
+    args: dict = {"limit": limit}
     if department:
         args["department"] = department
         
     async with _get_notices_session() as session:
         result = await session.call_tool("get_latest_notices", arguments=args)
-        return result.content[0].text if result.content else "[]"
+        return getattr(result.content[0], "text", "[]") if result.content else "[]"
 
 # ==================== TEST/VERIFY ====================
 

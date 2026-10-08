@@ -13,18 +13,15 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.messages import HumanMessage, SystemMessage, AIMessage, BaseMessage
 from agents.state import GraphState
 
-
 # Use the same Gemini model as the rest of the app
-llm = ChatOpenAI(
-    model="google/gemini-2.5-flash",
-    openai_api_key=os.getenv("OPENROUTER_API_KEY"),
-    openai_api_base=os.getenv("OPENROUTER_BASE_URL"),
-    temperature=0.0,  # Deterministic classification
-    max_retries=3,    # Auto-retry transient OpenRouter/Gemini 500s
+llm = ChatGoogleGenerativeAI(
+    model=os.getenv("LLM_MODEL", "gemini-3.8-flash"),
+    temperature=0.0,
+    max_retries=3,
 )
 
 CLASSIFIER_PROMPT = """You are an intent classifier for a university campus assistant chatbot.
@@ -112,7 +109,7 @@ async def supervisor_node(state: GraphState) -> dict:
         return {"intent": "timetable"}
 
     # ── LLM CLASSIFICATION ───────────────────────────────────────────────────
-    messages = [
+    messages: list[BaseMessage] = [
         SystemMessage(content=CLASSIFIER_PROMPT),
     ]
 
@@ -125,7 +122,12 @@ async def supervisor_node(state: GraphState) -> dict:
     messages.append(HumanMessage(content=f"Classify this query: \"{query}\""))
 
     response = await llm.ainvoke(messages)
-    intent = response.content.strip().lower().strip('"').strip("'")
+    raw_content = response.content
+    if isinstance(raw_content, list):
+        raw_content = " ".join([b.get("text", "") if isinstance(b, dict) else b for b in raw_content])
+    elif not isinstance(raw_content, str):
+        raw_content = str(raw_content)  # type: ignore
+    intent = raw_content.strip().lower().strip('"').strip("'")
 
     # Validate — fall back to "general" if Gemini returns something unexpected
     valid_intents = {"rag", "timetable", "deadline", "planner", "notices", "general"}

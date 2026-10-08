@@ -6,24 +6,19 @@ text embeddings for documents and queries.
 """
 
 import os
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
+from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
 
 
-def get_embeddings() -> HuggingFaceEndpointEmbeddings:
+def get_embeddings() -> FastEmbedEmbeddings:
     """
-    Create and return a HuggingFace Inference API embedding model.
+    Create and return a local FastEmbed embedding model.
 
-    Uses the HUGGINGFACE_API_KEY from environment variables.
-    Model: sentence-transformers/all-MiniLM-L6-v2
+    Runs locally using FastEmbed (no PyTorch, very lightweight, completely free).
+    Model: sentence-transformers/all-MiniLM-L6-v2 (default in FastEmbed)
 
     Returns:
-        HuggingFaceEndpointEmbeddings instance.
+        FastEmbedEmbeddings instance.
     """
-    api_key = os.getenv("HUGGINGFACE_API_KEY")
-    if not api_key:
-        raise RuntimeError("HUGGINGFACE_API_KEY not set in .env")
-
-    return HuggingFaceEndpointEmbeddings(
-        model="sentence-transformers/all-MiniLM-L6-v2",
-        huggingfacehub_api_token=api_key,
+    return FastEmbedEmbeddings(
+        model_name="BAAI/bge-small-en-v1.5",
     )

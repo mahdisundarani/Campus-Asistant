@@ -7,7 +7,7 @@
 [![LangGraph](https://img.shields.io/badge/Orchestration-LangGraph-1C3C3C?logo=langchain)](https://langchain.com/langgraph)
 [![Qdrant](https://img.shields.io/badge/Vector_Store-Qdrant_Cloud-DC244C?logo=qdrant)](https://qdrant.tech)
 [![Supabase](https://img.shields.io/badge/Auth%20%26%20DB-Supabase-3ECF8E?logo=supabase)](https://supabase.com)
-[![Gemini](https://img.shields.io/badge/LLM-Gemini_2.5_Flash-4285F4?logo=google)](https://ai.google.dev)
+[![Gemini](https://img.shields.io/badge/LLM-Gemini_3.8_Flash-4285F4?logo=google)](https://ai.google.dev)
 
 ---
 
@@ -148,8 +148,8 @@ For a detailed deep-dive into **What, Why, and How** we use MCP, see our **[MCP 
 | Frontend | Next.js 16 (App Router), Tailwind CSS v4 |
 | Backend | FastAPI, Python 3.11+ |
 | Orchestration | LangGraph (LangChain) |
-| LLM | Google Gemini 2.5 Flash |
-| Embeddings | HuggingFace `all-MiniLM-L6-v2` |
+| LLM | OpenRouter / Gemini 3.8 Flash (Configurable via .env) |
+| Embeddings | FastEmbed (Local, lightweight, BAAI/bge-small-en-v1.5) |
 | Vector Store | **Qdrant Cloud** (persistent, cloud-hosted) |
 | Retrieval | Hybrid search: Qdrant dense + BM25 sparse + FlashRank reranking |
 | Database / Auth | Supabase PostgreSQL |
@@ -245,8 +245,11 @@ npm run dev                   # http://localhost:3000
 ```env
 SUPABASE_URL=<supabase-project-url>
 SUPABASE_SERVICE_ROLE_KEY=<supabase-service-role-key>
-GOOGLE_API_KEY=<google-gemini-api-key>
-HUGGINGFACE_API_KEY=<huggingface-api-key>
+
+# LLM Provider (OpenRouter / OpenAI-compatible API)
+OPENROUTER_API_KEY=<sk-or-v1-...>
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+LLM_MODEL=google/gemini-3.8-flash # or google/gemini-3.8-flash:free
 
 # Qdrant Cloud
 QDRANT_URL=<your-qdrant-cluster-url>          # e.g. https://xyz.qdrant.io
